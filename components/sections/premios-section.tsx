@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Gift, Sparkles, Check, Star } from "lucide-react"
 import Image from "next/image"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 
 interface Premio {
   id: string
@@ -230,8 +231,15 @@ export function PremiosSection() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
-            <Gift className="w-7 h-7 text-white" />
+          <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg">
+            <Image 
+              src={LORICOIN_IMAGES.shopping}
+              alt="Premios" 
+              width={56} 
+              height={56}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Tienda de Premios</h1>
@@ -240,11 +248,12 @@ export function PremiosSection() {
         </div>
         <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg">
           <Image 
-            src="/images/loricoin-mascot.png" 
+            src={LORICOIN_IMAGES.coin}
             alt="LoriCoin" 
-            width={32} 
-            height={32}
-            className="w-8 h-8"
+            width={40} 
+            height={40}
+            className="w-10 h-10 rounded-full"
+            unoptimized
           />
           <div>
             <p className="text-xs opacity-80">Tu saldo</p>

@@ -17,6 +17,7 @@ import {
   Star,
 } from "lucide-react"
 import { financialTips } from "@/lib/mock-data"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 
@@ -57,11 +58,12 @@ export function DashboardSection() {
           <div className="relative">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg overflow-hidden">
               <Image 
-                src="/images/loricoin-mascot.png" 
+                src={LORICOIN_IMAGES.treasure}
                 alt="LoriCoin" 
                 width={56} 
                 height={56}
-                className="w-14 h-14 object-contain"
+                className="w-14 h-14 object-cover"
+                unoptimized
               />
             </div>
             {childStreak > 0 && (
@@ -104,13 +106,14 @@ export function DashboardSection() {
       {/* Financial Tip */}
       <Card className="bg-gradient-to-r from-emerald-500 to-teal-500 border-0 text-white shadow-lg overflow-hidden">
         <CardContent className="p-4 relative">
-          <div className="absolute right-0 top-0 opacity-20">
+          <div className="absolute right-0 top-0 opacity-30">
             <Image 
-              src="/images/loricoin-mascot.png" 
+              src={LORICOIN_IMAGES.coin}
               alt="" 
               width={100} 
               height={100}
               className="w-24 h-24"
+              unoptimized
             />
           </div>
           <div className="flex items-start gap-3 relative z-10">
@@ -173,11 +176,12 @@ export function DashboardSection() {
             </CardTitle>
             <div className="w-10 h-10 rounded-xl overflow-hidden">
               <Image 
-                src="/images/loricoin-mascot.png" 
+                src={LORICOIN_IMAGES.coin}
                 alt="LoriCoins" 
                 width={40} 
                 height={40}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
+                unoptimized
               />
             </div>
           </CardHeader>

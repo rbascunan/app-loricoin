@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
+import Image from "next/image"
 import {
   Coins,
   TrendingUp,
@@ -121,7 +123,16 @@ export function LoricoinsSection() {
             <div>
               <p className="text-sm text-sidebar-foreground/70 mb-1">Tu Balance</p>
               <div className="flex items-center gap-3">
-                <Coins className="w-10 h-10 text-accent" />
+                <div className="w-14 h-14 rounded-full overflow-hidden">
+                  <Image 
+                    src={LORICOIN_IMAGES.coin}
+                    alt="LoriCoins" 
+                    width={56} 
+                    height={56}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </div>
                 <span className="text-5xl font-bold">{user.loriCoins.toLocaleString()}</span>
               </div>
               <p className="text-sm text-sidebar-foreground/70 mt-2">LoriCoins</p>
@@ -132,7 +143,14 @@ export function LoricoinsSection() {
                 <span className="text-lori-success">+85 esta semana</span>
               </div>
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" />
+                <Image 
+                  src={LORICOIN_IMAGES.stellar}
+                  alt="Stellar" 
+                  width={20} 
+                  height={20}
+                  className="w-5 h-5"
+                  unoptimized
+                />
                 <span className="text-sm">Protegido por Stellar</span>
               </div>
               {isChildMode && selectedChild && (

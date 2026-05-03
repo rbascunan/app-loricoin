@@ -1,4 +1,4 @@
-import { streamText, tool, convertToModelMessages } from 'ai'
+import { streamText, tool } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 
@@ -37,12 +37,20 @@ CONTEXTO: Esta es una app llamada LoriCoin que gamifica la educacion financiera.
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const body = await req.json()
+    const messages = body?.messages || []
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'No messages provided' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     const result = streamText({
       model: groq('llama-3.3-70b-versatile'), // FREE with Groq!
       system: LORIA_SYSTEM_PROMPT,
-      messages: await convertToModelMessages(messages),
+      messages: messages,
       tools: {
         searchNotionLessons: tool({
           description: 'Busca lecciones educativas sobre finanzas en Notion. Usa esto cuando el usuario quiere aprender sobre un tema especifico como ahorro, presupuesto, inversion, etc.',

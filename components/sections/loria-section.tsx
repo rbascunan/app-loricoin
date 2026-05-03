@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, Sparkles, Lightbulb, PiggyBank, Target, HelpCircle, BookOpen, Loader2 } from "lucide-react"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
+import Image from "next/image"
 
 const suggestedQuestions = [
   { icon: PiggyBank, text: "Como puedo ahorrar mas dinero?" },
@@ -264,11 +266,21 @@ export function LoriaSection() {
       {/* Header */}
       <div className="mb-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-primary-foreground" />
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-emerald-100 to-teal-100 p-1">
+            <Image 
+              src={LORICOIN_IMAGES.learning}
+              alt="LorIA" 
+              width={56} 
+              height={56}
+              className="w-full h-full object-cover rounded-full"
+              unoptimized
+            />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">LorIA</h1>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              LorIA
+              <span className="text-xs bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-2 py-0.5 rounded-full">AI</span>
+            </h1>
             <p className="text-muted-foreground">Tu asistente de educacion financiera con IA</p>
           </div>
         </div>
@@ -282,8 +294,15 @@ export function LoriaSection() {
             <ScrollArea className="flex-1 p-4" ref={scrollRef}>
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-                    <Sparkles className="w-10 h-10 text-primary" />
+                  <div className="w-24 h-24 rounded-full overflow-hidden mb-4">
+                    <Image 
+                      src={LORICOIN_IMAGES.learning}
+                      alt="LorIA" 
+                      width={96} 
+                      height={96}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Hola, {user.name.split(" ")[0]}!</h3>
                   <p className="text-muted-foreground max-w-md">
