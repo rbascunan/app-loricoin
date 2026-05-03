@@ -9,172 +9,20 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, Sparkles, Lightbulb, PiggyBank, Target, HelpCircle, BookOpen, Loader2 } from "lucide-react"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
+import { getKnowledgeResponse } from "@/lib/loria-knowledge"
 import Image from "next/image"
 
 const suggestedQuestions = [
   { icon: PiggyBank, text: "Como puedo ahorrar mas dinero?" },
-  { icon: Target, text: "Que es un presupuesto?" },
-  { icon: Lightbulb, text: "Por que es importante ahorrar?" },
+  { icon: Target, text: "Como creo una meta financiera?" },
+  { icon: Lightbulb, text: "Diferencia entre necesidad y deseo" },
   { icon: HelpCircle, text: "Que son los LoriCoins?" },
-  { icon: BookOpen, text: "Enseñame sobre inversion" },
+  { icon: BookOpen, text: "Ideas de emprendimiento para ninos" },
 ]
 
-// Educational responses for when AI Gateway is not available
-const educationalResponses: Record<string, string> = {
-  "ahorro": `¡Excelente pregunta sobre el ahorro! 🐷
-
-El ahorro es guardar una parte del dinero que recibes para usarlo mas tarde. Es como plantar una semilla que crece con el tiempo.
-
-**Tips para empezar a ahorrar:**
-1. Guarda al menos el 10% de tu mesada
-2. Usa una alcancia o una cuenta de ahorro
-3. Establece una meta clara (un juguete, un libro, etc.)
-
-**Dato curioso:** Si ahorras $10 cada semana durante un año, tendras mas de $500!
-
-¿Te gustaria aprender mas sobre como establecer metas de ahorro?`,
-
-  "presupuesto": `¡Vamos a aprender sobre presupuestos! 📊
-
-Un presupuesto es un plan para tu dinero. Te ayuda a saber:
-- Cuanto dinero tienes
-- Cuanto gastas
-- Cuanto puedes ahorrar
-
-**La Regla 50-30-20:**
-- 50% para necesidades (comida, utiles escolares)
-- 30% para gustos (juegos, dulces)
-- 20% para ahorro
-
-**Ejemplo:** Si recibes $100 de mesada:
-- $50 para necesidades
-- $30 para gustos
-- $20 para tu alcancia
-
-¿Quieres que te ayude a crear tu primer presupuesto?`,
-
-  "inversion": `¡Hablemos de inversion! 📈
-
-Invertir es poner tu dinero a trabajar para que crezca. Cuando inviertes, tu dinero puede generar mas dinero con el tiempo.
-
-**El poder del interes compuesto:**
-Imagina una bola de nieve bajando una montaña. Mientras mas rueda, mas grande se hace. Asi funciona el interes compuesto con tu dinero!
-
-**Ejemplo simple:**
-- Si tienes $100 y ganas 10% al año
-- Año 1: $110
-- Año 2: $121
-- Año 3: $133
-
-¡Tu dinero crece solo! ¿Te gustaria saber mas sobre como empezar?`,
-
-  "loricoins": `¡Los LoriCoins son geniales! 🪙
-
-Son la moneda de nuestra app que ganas por:
-- Completar tareas: +50 LoriCoins
-- Mantener el podio 5 dias: +20 LoriCoins  
-- Hacer un deposito: +50 LoriCoins
-- Completar lecciones conmigo: +30 LoriCoins
-- Alcanzar tu meta de ahorro: +100 LoriCoins
-
-**¿Para que sirven?**
-- Subir en el podio de Guardianes del Tesoro
-- Desbloquear logros especiales
-- Competir con otros ninos de tu clase
-
-¡Sigue aprendiendo y ahorrando para ganar mas LoriCoins!`,
-
-  "padres": `¡Hola! Como padre/madre, tienes un rol fundamental en la educacion financiera de tus hijos 👨‍👩‍👧‍👦
-
-**Tips para ensenar sobre dinero:**
-1. **Empieza temprano:** Desde los 3-4 años pueden entender conceptos basicos
-2. **Usa mesadas:** Ayudan a practicar la gestion del dinero
-3. **Se el ejemplo:** Los ninos aprenden observando tus habitos
-
-**Mesadas sugeridas por edad:**
-- 6-8 años: $50-100/semana
-- 9-11 años: $100-200/semana
-- 12+ años: $200-500/semana
-
-**En LoriCoin puedes:**
-- Crear desafios con recompensas en LoriCoins
-- Establecer metas de ahorro para tus hijos
-- Ver su progreso y movimientos
-- Enviarles dinero de forma segura
-
-¿Quieres que te ayude a crear el primer desafio para tu hijo/a?`,
-
-  "ensena": `¡Ensenar finanzas a los hijos es un regalo para toda la vida! 📚
-
-**Estrategias por edad:**
-
-**3-5 años:**
-- Usa alcancia transparente para ver el dinero crecer
-- Juegos de tienda con monedas de juguete
-- Enseña que las cosas cuestan dinero
-
-**6-10 años:**
-- Introduce la mesada semanal
-- Divide el dinero: gastar, ahorrar, compartir
-- Deja que tomen decisiones de compra pequenas
-
-**11+ años:**
-- Enseña presupuesto basico
-- Muestra como funcionan las cuentas bancarias
-- Habla sobre ingresos y gastos del hogar
-
-**Actividades en familia:**
-- Visiten el banco juntos
-- Planifiquen las compras del super
-- Establezcan una meta familiar de ahorro
-
-¿Te gustaria ideas especificas para la edad de tu hijo/a?`,
-
-  "default": `¡Hola! Soy LorIA, tu asistente de educacion financiera 🌟
-
-Puedo ayudarte con:
-
-**Para ninos:**
-- **Ahorro:** Como guardar dinero para el futuro
-- **Presupuesto:** Como planificar tus gastos
-- **LoriCoins:** Como ganar recompensas
-
-**Para padres:**
-- **Ensenar finanzas:** Estrategias por edad
-- **Mesadas:** Cuanto dar y como estructurarla
-- **LoriCoin:** Como usar la app para educar
-
-¿Sobre cual tema te gustaria aprender hoy?`
-}
-
+// Usar la base de conocimiento completa
 function getEducationalResponse(message: string): string {
-  const lowerMessage = message.toLowerCase()
-  
-  // Detectar preguntas de padres primero
-  const parentKeywords = ["mi hijo", "mis hijos", "como padre", "como madre", "enseñar", "ensenar", "familia", "hijos", "hijo", "hija", "mesada", "edad"]
-  const isParentQuestion = parentKeywords.some(keyword => lowerMessage.includes(keyword))
-  
-  if (isParentQuestion) {
-    if (lowerMessage.includes("enseñar") || lowerMessage.includes("ensenar") || lowerMessage.includes("edad")) {
-      return educationalResponses["ensena"]
-    }
-    return educationalResponses["padres"]
-  }
-  
-  if (lowerMessage.includes("ahorro") || lowerMessage.includes("ahorrar")) {
-    return educationalResponses["ahorro"]
-  }
-  if (lowerMessage.includes("presupuesto")) {
-    return educationalResponses["presupuesto"]
-  }
-  if (lowerMessage.includes("inversion") || lowerMessage.includes("invertir")) {
-    return educationalResponses["inversion"]
-  }
-  if (lowerMessage.includes("loricoin") || lowerMessage.includes("lori coin")) {
-    return educationalResponses["loricoins"]
-  }
-  
-  return educationalResponses["default"]
+  return getKnowledgeResponse(message)
 }
 
 interface Message {
