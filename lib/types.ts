@@ -1,6 +1,7 @@
 export interface User {
   id: string
   name: string
+  email?: string
   avatar: string
   role: 'parent' | 'child'
   balance: number
@@ -19,6 +20,9 @@ export interface Child {
   savingsGoal: number
   weeklyAllowance: number
   spendingLimit: number
+  streakDays: number
+  podiumPosition: number
+  totalPoints: number
 }
 
 export interface Transaction {
@@ -68,4 +72,46 @@ export interface NotionLesson {
   category?: string
   difficulty?: 'beginner' | 'intermediate' | 'advanced'
   loriCoinsReward: number
+}
+
+// Reglas de Oro para gamificacion
+export interface GoldenRule {
+  id: string
+  name: string
+  description: string
+  icon: string
+  points: number
+  checkCondition: string // Identifier for the condition to check
+}
+
+// Reglas para ganar LoriCoins
+export interface LoriCoinRule {
+  id: string
+  name: string
+  description: string
+  loriCoins: number
+  triggerAction: string // Action that triggers this rule
+}
+
+// Notificacion
+export interface Notification {
+  id: string
+  userId: string
+  type: 'achievement' | 'podium' | 'loricoins' | 'challenge' | 'rule'
+  title: string
+  message: string
+  icon: string
+  read: boolean
+  createdAt: string
+}
+
+// Podio
+export interface PodiumEntry {
+  childId: string
+  childName: string
+  avatar: string
+  totalPoints: number
+  position: number
+  rulesCompleted: number
+  streak: number
 }

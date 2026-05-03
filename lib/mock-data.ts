@@ -1,8 +1,9 @@
-import { User, Child, Transaction, Challenge, GameAchievement } from './types'
+import { User, Child, Transaction, Challenge, GameAchievement, GoldenRule, LoriCoinRule, Notification } from './types'
 
 export const mockParent: User = {
   id: '1',
   name: 'Maria Garcia',
+  email: 'maria@example.com',
   avatar: '👩',
   role: 'parent',
   balance: 45000,
@@ -22,6 +23,9 @@ export const mockChildren: Child[] = [
     savingsGoal: 5000,
     weeklyAllowance: 500,
     spendingLimit: 1000,
+    streakDays: 5,
+    podiumPosition: 1,
+    totalPoints: 850,
   },
   {
     id: '3',
@@ -33,6 +37,9 @@ export const mockChildren: Child[] = [
     savingsGoal: 3000,
     weeklyAllowance: 400,
     spendingLimit: 800,
+    streakDays: 3,
+    podiumPosition: 2,
+    totalPoints: 720,
   },
 ]
 
@@ -181,9 +188,156 @@ export const mockAchievements: GameAchievement[] = [
   },
 ]
 
+// 10 REGLAS DE ORO - "Los 10 Mandamientos del Dinero Inteligente"
+export const goldenRules: GoldenRule[] = [
+  {
+    id: 'rule-1',
+    name: 'Guardian del Ahorro',
+    description: 'Ahorra al menos 1 vez esta semana',
+    icon: '🛡️',
+    points: 100,
+    checkCondition: 'weekly_saving',
+  },
+  {
+    id: 'rule-2',
+    name: 'Racha Imparable',
+    description: 'Mantente 5 dias seguidos sin gastar innecesariamente',
+    icon: '🔥',
+    points: 150,
+    checkCondition: 'no_unnecessary_spending_5_days',
+  },
+  {
+    id: 'rule-3',
+    name: 'Cumplidor de Metas',
+    description: 'Alcanza tu meta de ahorro del mes',
+    icon: '🎯',
+    points: 300,
+    checkCondition: 'monthly_goal_reached',
+  },
+  {
+    id: 'rule-4',
+    name: 'Heroe de las Tareas',
+    description: 'Completa todas las tareas asignadas de la semana',
+    icon: '💪',
+    points: 120,
+    checkCondition: 'all_weekly_tasks_completed',
+  },
+  {
+    id: 'rule-5',
+    name: 'Presupuesto Maestro',
+    description: 'No excedas tu limite de gasto semanal',
+    icon: '📊',
+    points: 100,
+    checkCondition: 'under_spending_limit',
+  },
+  {
+    id: 'rule-6',
+    name: 'Estudiante Financiero',
+    description: 'Completa una leccion con LorIA',
+    icon: '📚',
+    points: 80,
+    checkCondition: 'completed_loria_lesson',
+  },
+  {
+    id: 'rule-7',
+    name: 'Generoso de Corazon',
+    description: 'Comparte o dona parte de tu dinero',
+    icon: '💝',
+    points: 150,
+    checkCondition: 'made_donation',
+  },
+  {
+    id: 'rule-8',
+    name: 'Planificador Pro',
+    description: 'Crea un plan de gastos para la semana',
+    icon: '📝',
+    points: 90,
+    checkCondition: 'created_spending_plan',
+  },
+  {
+    id: 'rule-9',
+    name: 'Constancia de Oro',
+    description: 'Ingresa a la app 7 dias seguidos',
+    icon: '⭐',
+    points: 70,
+    checkCondition: 'login_streak_7_days',
+  },
+  {
+    id: 'rule-10',
+    name: 'Campeon del Podio',
+    description: 'Mantente en el top 3 del podio por 5 dias',
+    icon: '🏆',
+    points: 200,
+    checkCondition: 'top_3_for_5_days',
+  },
+]
+
+// 5 REGLAS PARA GANAR LORICOINS
+export const loriCoinRules: LoriCoinRule[] = [
+  {
+    id: 'lc-1',
+    name: 'Tarea Completada',
+    description: 'Por cada tarea que completes',
+    loriCoins: 50,
+    triggerAction: 'task_completed',
+  },
+  {
+    id: 'lc-2',
+    name: 'Rey del Podio',
+    description: 'Por cada 5 dias que te mantengas en el podio',
+    loriCoins: 20,
+    triggerAction: 'podium_5_days',
+  },
+  {
+    id: 'lc-3',
+    name: 'Ingreso Inteligente',
+    description: 'Por cada ingreso de dinero que recibas',
+    loriCoins: 50,
+    triggerAction: 'money_received',
+  },
+  {
+    id: 'lc-4',
+    name: 'Super Ahorrador',
+    description: 'Por cada $100 que ahorres',
+    loriCoins: 25,
+    triggerAction: 'savings_100',
+  },
+  {
+    id: 'lc-5',
+    name: 'Aprendiz Estrella',
+    description: 'Por cada leccion completada con LorIA',
+    loriCoins: 30,
+    triggerAction: 'lesson_completed',
+  },
+]
+
+// Notificaciones iniciales de ejemplo
+export const mockNotifications: Notification[] = [
+  {
+    id: 'notif-1',
+    userId: '2',
+    type: 'achievement',
+    title: 'Nuevo logro desbloqueado!',
+    message: 'Has obtenido "Primer Ahorro". Sigue asi!',
+    icon: '🌟',
+    read: false,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'notif-2',
+    userId: '2',
+    type: 'podium',
+    title: 'Subiste en el podio!',
+    message: 'Ahora estas en el puesto #1. Felicitaciones!',
+    icon: '🏆',
+    read: false,
+    createdAt: new Date().toISOString(),
+  },
+]
+
 export const financialTips = [
   "Ahorra al menos el 10% de tu mesada cada semana",
-  "Antes de comprar algo, preguntate: ¿Lo necesito o lo quiero?",
+  "Antes de comprar algo, preguntate: Lo necesito o lo quiero?",
   "Establecer metas de ahorro te ayuda a mantenerte motivado",
   "El dinero que ahorras hoy puede crecer con el tiempo",
   "Un presupuesto es como un mapa para tu dinero",

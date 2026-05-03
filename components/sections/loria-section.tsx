@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
@@ -33,10 +33,11 @@ export function LoriaSection() {
 
   const user = isChildMode && selectedChild ? selectedChild : currentUser
 
-  const { messages, sendMessage, status, input, setInput } = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: '/api/loria' }),
   })
 
+  const [input, setInput] = useState('')
   const isStreaming = status === 'streaming' || status === 'submitted'
 
   useEffect(() => {
