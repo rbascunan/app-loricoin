@@ -28,6 +28,72 @@ interface Premio {
 }
 
 const premios: Premio[] = [
+  // PREMIOS BARATOS (50-300 LoriCoins) - Canjeables rapidamente
+  {
+    id: "pb1",
+    name: "Stickers Holograficos",
+    description: "Pack de 50 stickers brillantes para decorar tus cuadernos",
+    loriCoins: 50,
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&bg=white",
+    category: "Escolar",
+  },
+  {
+    id: "pb2",
+    name: "Lapices de Colores x12",
+    description: "Set de 12 lapices de colores profesionales",
+    loriCoins: 80,
+    image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=300&fit=crop&bg=white",
+    category: "Arte",
+  },
+  {
+    id: "pb3",
+    name: "Cuaderno Personalizado",
+    description: "Cuaderno con tu nombre y diseno a eleccion",
+    loriCoins: 100,
+    image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&h=300&fit=crop&bg=white",
+    category: "Escolar",
+  },
+  {
+    id: "pb4",
+    name: "Pelota de Futbol",
+    description: "Pelota oficial tamano 5 para jugar con amigos",
+    loriCoins: 150,
+    image: "https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aab?w=400&h=300&fit=crop&bg=white",
+    category: "Deportes",
+  },
+  {
+    id: "pb5",
+    name: "Helado para la Familia",
+    description: "Vale por 4 helados en la heladeria del barrio",
+    loriCoins: 180,
+    image: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=400&h=300&fit=crop&bg=white",
+    category: "Experiencias",
+  },
+  {
+    id: "pb6",
+    name: "Libro de Aventuras",
+    description: "Libro de tu saga favorita a eleccion",
+    loriCoins: 200,
+    image: "https://images.unsplash.com/photo-1524578271613-d550eacf6090?w=400&h=300&fit=crop&bg=white",
+    category: "Lectura",
+  },
+  {
+    id: "pb7",
+    name: "Cine + Pochoclos",
+    description: "Entrada al cine con combo de pochoclos y gaseosa",
+    loriCoins: 250,
+    image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=300&fit=crop&bg=white",
+    category: "Experiencias",
+  },
+  {
+    id: "pb8",
+    name: "Juego de Mesa",
+    description: "Juego de mesa clasico para jugar en familia",
+    loriCoins: 300,
+    image: "https://images.unsplash.com/photo-1611371805429-8b5c1b2c34ba?w=400&h=300&fit=crop&bg=white",
+    category: "Entretenimiento",
+  },
+  // PREMIOS ORIGINALES
   {
     id: "p1",
     name: "Bicicleta Mountain Bike",
@@ -193,10 +259,10 @@ const premios: Premio[] = [
   },
 ]
 
-const categories = ["Todos", "Experiencias", "Deportes", "Viajes", "Tecnologia", "Ciencia", "Escolar", "Arte"]
+const categories = ["Todos", "Experiencias", "Deportes", "Viajes", "Tecnologia", "Ciencia", "Escolar", "Arte", "Entretenimiento", "Lectura"]
 
 export function PremiosSection() {
-  const { currentUser, selectedChild, isChildMode } = useApp()
+  const { currentUser, selectedChild, isChildMode, addTransaction, addLoriCoins, children } = useApp()
   const [selectedCategory, setSelectedCategory] = useState("Todos")
   const [selectedPremio, setSelectedPremio] = useState<Premio | null>(null)
   const [canjeDialogOpen, setCanjeDialogOpen] = useState(false)
@@ -217,7 +283,26 @@ export function PremiosSection() {
   }
 
   const confirmCanje = () => {
-    // Here you would deduct LoriCoins and process the reward
+    if (!selectedPremio) return
+    
+    // Deduct LoriCoins from user
+    const targetId = isChildMode && selectedChild ? selectedChild.id : children[0]?.id
+    if (targetId) {
+      // Deduct LoriCoins (negative amount)
+      addLoriCoins(targetId, -selectedPremio.loriCoins, `Canje de premio: ${selectedPremio.name}`)
+      
+      // Add transaction to movements
+      addTransaction({
+        id: Date.now().toString(),
+        type: 'expense',
+        amount: 0,
+        description: `Canje Premio: ${selectedPremio.name}`,
+        category: 'Canje Premios',
+        date: new Date().toISOString(),
+        loriCoins: -selectedPremio.loriCoins,
+      })
+    }
+    
     setCanjeSuccess(true)
     setTimeout(() => {
       setCanjeDialogOpen(false)
@@ -327,7 +412,7 @@ export function PremiosSection() {
       </div>
 
       {/* All Premios Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {filteredPremios.map((premio) => (
           <Card key={premio.id} className="overflow-hidden group hover:shadow-lg transition-all">
             <div className="relative h-32 overflow-hidden bg-gray-100">

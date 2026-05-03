@@ -114,14 +114,14 @@ export function LoginScreen() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="parent" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 bg-emerald-100">
-                <TabsTrigger value="parent" className="flex items-center gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
-                  <Users className="w-4 h-4" />
-                  Padre/Madre
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-emerald-100 h-12">
+                <TabsTrigger value="parent" className="flex items-center justify-center gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-sm px-2">
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Padre/Madre</span>
                 </TabsTrigger>
-                <TabsTrigger value="child" className="flex items-center gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
-                  <User className="w-4 h-4" />
-                  Hijo/a
+                <TabsTrigger value="child" className="flex items-center justify-center gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-sm px-2">
+                  <User className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Hijo/a</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -184,12 +184,12 @@ export function LoginScreen() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm"
                     onClick={() => handleDemoLogin("parent")}
                     disabled={isLoading}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Entrar como Demo (Anabelia)
+                    <Sparkles className="w-4 h-4 mr-2 shrink-0" />
+                    <span className="truncate">Demo (Anabelia)</span>
                   </Button>
                 </form>
               </TabsContent>
@@ -247,12 +247,12 @@ export function LoginScreen() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm"
                     onClick={() => handleDemoLogin("child")}
                     disabled={isLoading}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Entrar como Demo (Betito)
+                    <Sparkles className="w-4 h-4 mr-2 shrink-0" />
+                    <span className="truncate">Demo (Betito)</span>
                   </Button>
                 </form>
               </TabsContent>

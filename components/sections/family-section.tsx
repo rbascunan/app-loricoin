@@ -313,20 +313,20 @@ export function FamilySection() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Balance Cards */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
-                    <div className="flex items-center gap-2 text-blue-600 mb-1">
-                      <Wallet className="w-4 h-4" />
-                      <span className="text-xs font-medium">Balance</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
+                    <div className="flex items-center gap-1 text-blue-600 mb-1">
+                      <Wallet className="w-3 h-3 shrink-0" />
+                      <span className="text-[10px] sm:text-xs font-medium">Balance</span>
                     </div>
-                    <p className="font-bold text-lg">{formatCurrency(child.balance)}</p>
+                    <p className="font-bold text-sm sm:text-lg truncate">{formatCurrency(child.balance)}</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 border border-pink-100">
-                    <div className="flex items-center gap-2 text-pink-600 mb-1">
-                      <PiggyBank className="w-4 h-4" />
-                      <span className="text-xs font-medium">Ahorros</span>
+                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 border border-pink-100">
+                    <div className="flex items-center gap-1 text-pink-600 mb-1">
+                      <PiggyBank className="w-3 h-3 shrink-0" />
+                      <span className="text-[10px] sm:text-xs font-medium">Ahorros</span>
                     </div>
-                    <p className="font-bold text-lg">{formatCurrency(child.savings)}</p>
+                    <p className="font-bold text-sm sm:text-lg truncate">{formatCurrency(child.savings)}</p>
                   </div>
                 </div>
 
@@ -345,14 +345,14 @@ export function FamilySection() {
                 </div>
 
                 {/* Info Row */}
-                <div className="flex gap-4 text-xs text-muted-foreground">
+                <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    <span>Mesada: {formatCurrency(child.weeklyAllowance)}/sem</span>
+                    <Clock className="w-3 h-3 shrink-0" />
+                    <span className="truncate">Mesada: {formatCurrency(child.weeklyAllowance)}/sem</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    <span>Limite: {formatCurrency(child.spendingLimit)}</span>
+                    <Shield className="w-3 h-3 shrink-0" />
+                    <span className="truncate">Limite: {formatCurrency(child.spendingLimit)}</span>
                   </div>
                 </div>
 
@@ -365,41 +365,43 @@ export function FamilySection() {
                   </TabsList>
                   
                   <TabsContent value="dinero" className="mt-3">
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
-                        className="bg-emerald-500 hover:bg-emerald-600"
+                        className="bg-emerald-500 hover:bg-emerald-600 flex-1 min-w-[70px] text-xs"
                         onClick={(e) => {
                           e.stopPropagation()
                           openAdjustDialog(child.id, "add")
                         }}
                       >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Sumar
+                        <Plus className="w-3 h-3 mr-1 shrink-0" />
+                        <span className="truncate">Sumar</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
+                        className="flex-1 min-w-[70px] text-xs"
                         onClick={(e) => {
                           e.stopPropagation()
                           openAdjustDialog(child.id, "subtract")
                         }}
                       >
-                        <Minus className="w-4 h-4 mr-1" />
-                        Restar
+                        <Minus className="w-3 h-3 mr-1 shrink-0" />
+                        <span className="truncate">Restar</span>
                       </Button>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
                             size="sm"
                             variant="outline"
+                            className="flex-1 min-w-[70px] text-xs"
                             onClick={(e) => {
                               e.stopPropagation()
                               setSelectedChildForAction(child.id)
                             }}
                           >
-                            <Send className="w-4 h-4 mr-1" />
-                            Enviar
+                            <Send className="w-3 h-3 mr-1 shrink-0" />
+                            <span className="truncate">Enviar</span>
                           </Button>
                         </DialogTrigger>
                         <DialogContent onClick={(e) => e.stopPropagation()}>

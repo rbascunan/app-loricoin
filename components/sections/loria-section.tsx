@@ -84,19 +84,82 @@ Son la moneda de nuestra app que ganas por:
 
 ¡Sigue aprendiendo y ahorrando para ganar mas LoriCoins!`,
 
-  "default": `¡Hola! Soy LorIA, tu amiga de educacion financiera 🌟
+  "padres": `¡Hola! Como padre/madre, tienes un rol fundamental en la educacion financiera de tus hijos 👨‍👩‍👧‍👦
 
-Puedo enseñarte sobre:
+**Tips para ensenar sobre dinero:**
+1. **Empieza temprano:** Desde los 3-4 años pueden entender conceptos basicos
+2. **Usa mesadas:** Ayudan a practicar la gestion del dinero
+3. **Se el ejemplo:** Los ninos aprenden observando tus habitos
+
+**Mesadas sugeridas por edad:**
+- 6-8 años: $50-100/semana
+- 9-11 años: $100-200/semana
+- 12+ años: $200-500/semana
+
+**En LoriCoin puedes:**
+- Crear desafios con recompensas en LoriCoins
+- Establecer metas de ahorro para tus hijos
+- Ver su progreso y movimientos
+- Enviarles dinero de forma segura
+
+¿Quieres que te ayude a crear el primer desafio para tu hijo/a?`,
+
+  "ensena": `¡Ensenar finanzas a los hijos es un regalo para toda la vida! 📚
+
+**Estrategias por edad:**
+
+**3-5 años:**
+- Usa alcancia transparente para ver el dinero crecer
+- Juegos de tienda con monedas de juguete
+- Enseña que las cosas cuestan dinero
+
+**6-10 años:**
+- Introduce la mesada semanal
+- Divide el dinero: gastar, ahorrar, compartir
+- Deja que tomen decisiones de compra pequenas
+
+**11+ años:**
+- Enseña presupuesto basico
+- Muestra como funcionan las cuentas bancarias
+- Habla sobre ingresos y gastos del hogar
+
+**Actividades en familia:**
+- Visiten el banco juntos
+- Planifiquen las compras del super
+- Establezcan una meta familiar de ahorro
+
+¿Te gustaria ideas especificas para la edad de tu hijo/a?`,
+
+  "default": `¡Hola! Soy LorIA, tu asistente de educacion financiera 🌟
+
+Puedo ayudarte con:
+
+**Para ninos:**
 - **Ahorro:** Como guardar dinero para el futuro
 - **Presupuesto:** Como planificar tus gastos
-- **Inversion:** Como hacer crecer tu dinero
 - **LoriCoins:** Como ganar recompensas
+
+**Para padres:**
+- **Ensenar finanzas:** Estrategias por edad
+- **Mesadas:** Cuanto dar y como estructurarla
+- **LoriCoin:** Como usar la app para educar
 
 ¿Sobre cual tema te gustaria aprender hoy?`
 }
 
 function getEducationalResponse(message: string): string {
   const lowerMessage = message.toLowerCase()
+  
+  // Detectar preguntas de padres primero
+  const parentKeywords = ["mi hijo", "mis hijos", "como padre", "como madre", "enseñar", "ensenar", "familia", "hijos", "hijo", "hija", "mesada", "edad"]
+  const isParentQuestion = parentKeywords.some(keyword => lowerMessage.includes(keyword))
+  
+  if (isParentQuestion) {
+    if (lowerMessage.includes("enseñar") || lowerMessage.includes("ensenar") || lowerMessage.includes("edad")) {
+      return educationalResponses["ensena"]
+    }
+    return educationalResponses["padres"]
+  }
   
   if (lowerMessage.includes("ahorro") || lowerMessage.includes("ahorrar")) {
     return educationalResponses["ahorro"]

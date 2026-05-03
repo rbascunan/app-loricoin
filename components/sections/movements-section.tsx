@@ -117,7 +117,7 @@ export function MovementsSection() {
     .reduce((sum, tx) => sum + tx.amount, 0)
 
   const incomeCategories = ["Mesada", "Regalo", "Cumpleanos", "Trabajo", "Venta", "Otro"]
-  const expenseCategories = ["Golosinas", "Juguetes", "Escuela", "Transporte", "Comida", "Entretenimiento", "Ropa", "Otro"]
+  const expenseCategories = ["Golosinas", "Juguetes", "Escuela", "Transporte", "Comida", "Entretenimiento", "Ropa", "Canje Premios", "Otro"]
 
   return (
     <div className="space-y-6">

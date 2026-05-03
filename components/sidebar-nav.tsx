@@ -152,7 +152,10 @@ export function SidebarNav({
                   currentSection === item.id && "bg-white/20 text-white font-semibold shadow-lg",
                   collapsed && "justify-center px-2"
                 )}
-                onClick={() => onSectionChange(item.id)}
+                onClick={() => {
+                  onSectionChange(item.id)
+                  window.scrollTo({ top: 0, behavior: 'instant' })
+                }}
               >
                 {/* Left Icon - always white Lucide icon */}
                 <Icon className="w-5 h-5 shrink-0" />

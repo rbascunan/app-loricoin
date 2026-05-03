@@ -132,18 +132,18 @@ export function DashboardSection() {
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         {/* Balance Card */}
         <Card className="border-2 border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 hover:shadow-lg transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700">
-              Balance
-            </CardTitle>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-white" />
+          <CardHeader className="pb-2 space-y-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-medium text-blue-700">Balance</CardTitle>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shrink-0">
+                <Wallet className="w-4 h-4 text-white" />
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{formatCurrency(user.balance)}</div>
-            <p className="text-xs text-blue-600 flex items-center gap-1 mt-1">
-              <ArrowUpRight className="w-3 h-3" />
+          <CardContent className="pt-0">
+            <div className="text-xl md:text-2xl font-bold text-blue-800">{formatCurrency(user.balance)}</div>
+            <p className="text-[10px] text-blue-600 flex items-center gap-1 mt-1">
+              <ArrowUpRight className="w-3 h-3 shrink-0" />
               <span>+12% vs. mes pasado</span>
             </p>
           </CardContent>
@@ -151,18 +151,18 @@ export function DashboardSection() {
 
         {/* Savings Card */}
         <Card className="border-2 border-pink-100 bg-gradient-to-br from-pink-50 to-rose-50 hover:shadow-lg transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-pink-700">
-              Ahorros
-            </CardTitle>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center">
-              <PiggyBank className="w-5 h-5 text-white" />
+          <CardHeader className="pb-2 space-y-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-medium text-pink-700">Ahorros</CardTitle>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shrink-0">
+                <PiggyBank className="w-4 h-4 text-white" />
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-pink-800">{formatCurrency(user.savings)}</div>
+          <CardContent className="pt-0">
+            <div className="text-xl md:text-2xl font-bold text-pink-800">{formatCurrency(user.savings)}</div>
             <Progress value={savingsProgress} className="mt-2 h-2 bg-pink-100" />
-            <p className="text-xs text-pink-600 mt-1">
+            <p className="text-[10px] text-pink-600 mt-1">
               {savingsProgress.toFixed(0)}% de tu meta
             </p>
           </CardContent>
@@ -170,25 +170,25 @@ export function DashboardSection() {
 
         {/* LoriCoins Card */}
         <Card className="border-2 border-yellow-100 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-lg transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-yellow-700">
-              LoriCoins
-            </CardTitle>
-            <div className="w-10 h-10 rounded-xl overflow-hidden">
-              <Image 
-                src={LORICOIN_IMAGES.coin}
-                alt="LoriCoins" 
-                width={40} 
-                height={40}
-                className="w-full h-full object-cover"
-                unoptimized
-              />
+          <CardHeader className="pb-2 space-y-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-medium text-yellow-700">LoriCoins</CardTitle>
+              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                <Image 
+                  src={LORICOIN_IMAGES.coin}
+                  alt="LoriCoins" 
+                  width={32} 
+                  height={32}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-700">{user.loriCoins}</div>
-            <p className="text-xs text-yellow-600 flex items-center gap-1 mt-1">
-              <TrendingUp className="w-3 h-3" />
+          <CardContent className="pt-0">
+            <div className="text-xl md:text-2xl font-bold text-yellow-700">{user.loriCoins}</div>
+            <p className="text-[10px] text-yellow-600 flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3 h-3 shrink-0" />
               <span>+45 esta semana</span>
             </p>
           </CardContent>
@@ -196,17 +196,17 @@ export function DashboardSection() {
 
         {/* Goal Card */}
         <Card className="border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 hover:shadow-lg transition-all">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-emerald-700">
-              Meta Mensual
-            </CardTitle>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
-              <Target className="w-5 h-5 text-white" />
+          <CardHeader className="pb-2 space-y-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-medium text-emerald-700">Meta Mensual</CardTitle>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
+                <Target className="w-4 h-4 text-white" />
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-800">{formatCurrency(user.savingsGoal)}</div>
-            <p className="text-xs text-emerald-600 mt-1">
+          <CardContent className="pt-0">
+            <div className="text-xl md:text-2xl font-bold text-emerald-800">{formatCurrency(user.savingsGoal)}</div>
+            <p className="text-[10px] text-emerald-600 mt-1">
               Faltan {formatCurrency(user.savingsGoal - user.savings)}
             </p>
           </CardContent>
