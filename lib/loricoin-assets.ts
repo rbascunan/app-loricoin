@@ -15,8 +15,17 @@ export const LORICOIN_IMAGES = {
   // Lorito con baul del tesoro - para balance y saldos
   treasure: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10-YubOGaa0ksgq0NGOx9OkWS83avGJHV.png",
   
-  // Stellar blockchain logo
+  // Stellar blockchain logo (negro - para usar fuera del menu)
   stellar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/stellar-vqHCAbG6CKBCvEAusxnA5E4Hu0XcjS.avif",
+}
+
+// Iconos blancos con fondo transparente para el menu
+export const WHITE_ICONS = {
+  // Icono AI blanco con destellos
+  ai: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%C3%8Dcono%20IA-w3dusKrt7qOmwearN8pdP5uW2dcXwr.png",
+  
+  // Logo Stellar blanco
+  stellar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo%20Stellar-fjBYylRwHMP638YzdoNhji6DEjRPIE.png",
 }
 
 // Fotos de la familia Bascunan
@@ -25,6 +34,30 @@ export const FAMILY_PHOTOS = {
   betito: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hijo%20Betito%20Bascu%C3%B1an-YuQ3dfEOOXKo6vvKWWN1y1SP7pDlGI.jpeg",
   martina: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hija%20Martina%20Bascu%C3%B1an-gwPtceHKc1alEcvq8K8pnDC2JaPtBv.jpeg",
 }
+
+// Fotos de ninos para la comunidad
+export const COMMUNITY_KIDS = [
+  {
+    name: "Lucas M.",
+    avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%202-v6A7Sc22VPrN1NPldNHcHloBW6HSis.jpg",
+  },
+  {
+    name: "Sofia R.",
+    avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%203.jpg-qzvHE78SoMq4XsWDC9Bh5mluYhbYp3.webp",
+  },
+  {
+    name: "Tony S.",
+    avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%205.jpg-DWyTNtcHFgMqhfVLh5nK8nmWrDgPd8.webp",
+  },
+  {
+    name: "Mei L.",
+    avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%206-UKmAtH4fnZtmugi3E7UMHBik2D3LMw.jpg",
+  },
+  {
+    name: "Akali P.",
+    avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%207-R2qVeqlhv1mDu4W6vqbkdLO2KnY6hO.jpg",
+  },
+]
 
 // Map sections to their appropriate mascot
 export const SECTION_MASCOTS = {

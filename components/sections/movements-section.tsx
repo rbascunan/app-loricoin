@@ -37,6 +37,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import Image from "next/image"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 
 export function MovementsSection() {
   const { transactions, isChildMode, addTransaction, selectedChild, addLoriCoins } = useApp()
@@ -122,13 +123,14 @@ export function MovementsSection() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg">
-            <Image 
-              src="/images/loricoin-mascot.png" 
-              alt="Movimientos" 
-              width={36} 
-              height={36}
-              className="w-9 h-9"
+<div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg">
+            <Image
+              src={LORICOIN_IMAGES.coin}
+              alt="Movimientos"
+              width={56}
+              height={56}
+              className="w-full h-full object-cover"
+              unoptimized
             />
           </div>
           <div>

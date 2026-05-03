@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { useApp } from "@/lib/app-context"
-import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
+import { LORICOIN_IMAGES, WHITE_ICONS } from "@/lib/loricoin-assets"
 import {
   LayoutDashboard,
   Users,
@@ -12,12 +12,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Gift,
-  Sparkles,
   Bot,
+  Coins,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import Image from "next/image"
 
 interface SidebarNavProps {
@@ -28,13 +29,13 @@ interface SidebarNavProps {
 }
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, rightIcon: null },
-  { id: "family", label: "Familia", icon: Users, rightIcon: null },
-  { id: "movements", label: "Movimientos", icon: ArrowRightLeft, rightIcon: null },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "family", label: "Familia", icon: Users },
+  { id: "movements", label: "Movimientos", icon: ArrowRightLeft },
   { id: "loria", label: "LorIA", icon: Bot, rightIcon: "ai" },
-  { id: "community", label: "Comunidad", icon: Gamepad2, rightIcon: null },
-  { id: "loricoins", label: "LoriCoins", icon: "coin", rightIcon: "stellar" },
-  { id: "premios", label: "Premios", icon: Gift, rightIcon: null },
+  { id: "community", label: "Comunidad", icon: Gamepad2 },
+  { id: "loricoins", label: "LoriCoins", icon: Coins, rightIcon: "stellar" },
+  { id: "premios", label: "Premios", icon: Gift, isNew: true },
 ]
 
 export function SidebarNav({
@@ -45,53 +46,7 @@ export function SidebarNav({
 }: SidebarNavProps) {
   const { currentUser, isChildMode, setIsChildMode, selectedChild } = useApp()
 
-  const renderLeftIcon = (item: typeof navItems[0]) => {
-    if (item.icon === "coin") {
-      return (
-        <div className="w-5 h-5 rounded-full overflow-hidden shrink-0">
-          <Image 
-            src={LORICOIN_IMAGES.coin}
-            alt="LoriCoins" 
-            width={20} 
-            height={20}
-            className="w-full h-full object-cover"
-            unoptimized
-          />
-        </div>
-      )
-    }
-    if (typeof item.icon === "function") {
-      const Icon = item.icon
-      return <Icon className="w-5 h-5 shrink-0" />
-    }
-    return null
-  }
-
-  const renderRightIcon = (rightIcon: string | null) => {
-    if (rightIcon === "ai") {
-      return (
-        <span className="ml-auto flex items-center gap-0.5 text-xs font-bold">
-          <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">AI</span>
-          <Sparkles className="w-3 h-3 text-purple-400" />
-        </span>
-      )
-    }
-    if (rightIcon === "stellar") {
-      return (
-        <Image 
-          src={LORICOIN_IMAGES.stellar}
-          alt="Stellar" 
-          width={18} 
-          height={18}
-          className="ml-auto w-4 h-4 object-contain opacity-80"
-          unoptimized
-        />
-      )
-    }
-    return null
-  }
-
-  // Get avatar URL
+  // Get avatar info
   const avatarUrl = isChildMode && selectedChild 
     ? selectedChild.avatarUrl 
     : currentUser.avatarUrl
@@ -183,30 +138,61 @@ export function SidebarNav({
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-        {navItems.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            className={cn(
-              "w-full justify-start gap-3 text-white/80 hover:bg-white/10 hover:text-white transition-all",
-              currentSection === item.id && "bg-white/20 text-white font-semibold shadow-lg",
-              collapsed && "justify-center px-2"
-            )}
-            onClick={() => onSectionChange(item.id)}
-          >
-            {renderLeftIcon(item)}
-            {!collapsed && <span>{item.label}</span>}
-            {!collapsed && item.rightIcon && renderRightIcon(item.rightIcon)}
-            {!collapsed && item.id === "premios" && (
-              <span className="ml-auto text-xs bg-yellow-400 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                Nuevo
-              </span>
-            )}
-          </Button>
-        ))}
-      </nav>
+      {/* Navigation with green scrollbar */}
+      <ScrollArea className="flex-1 [&_[data-radix-scroll-area-thumb]]:bg-emerald-400/50 [&_[data-radix-scroll-area-scrollbar]]:bg-emerald-800/30">
+        <nav className="p-2 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start gap-3 text-white/80 hover:bg-white/10 hover:text-white transition-all",
+                  currentSection === item.id && "bg-white/20 text-white font-semibold shadow-lg",
+                  collapsed && "justify-center px-2"
+                )}
+                onClick={() => onSectionChange(item.id)}
+              >
+                {/* Left Icon - always white Lucide icon */}
+                <Icon className="w-5 h-5 shrink-0" />
+                
+                {/* Label */}
+                {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
+                
+                {/* Right Icon - AI or Stellar (white versions) */}
+                {!collapsed && item.rightIcon === "ai" && (
+                  <Image 
+                    src={WHITE_ICONS.ai}
+                    alt="AI" 
+                    width={20} 
+                    height={20}
+                    className="w-5 h-5 object-contain"
+                    unoptimized
+                  />
+                )}
+                {!collapsed && item.rightIcon === "stellar" && (
+                  <Image 
+                    src={WHITE_ICONS.stellar}
+                    alt="Stellar" 
+                    width={20} 
+                    height={20}
+                    className="w-5 h-5 object-contain"
+                    unoptimized
+                  />
+                )}
+                
+                {/* New badge for Premios */}
+                {!collapsed && item.isNew && (
+                  <span className="text-xs bg-yellow-400 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                    Nuevo
+                  </span>
+                )}
+              </Button>
+            )
+          })}
+        </nav>
+      </ScrollArea>
 
       {/* Footer with Creator Credit */}
       <div className="p-2 border-t border-white/10">

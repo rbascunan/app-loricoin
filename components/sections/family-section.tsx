@@ -5,7 +5,8 @@ import { useApp } from "@/lib/app-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -152,13 +153,14 @@ export function FamilySection() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl overflow-hidden">
             <Image 
-              src="/images/loricoin-mascot.png" 
+              src={LORICOIN_IMAGES.coin}
               alt="Familia" 
-              width={32} 
-              height={32}
-              className="w-8 h-8"
+              width={48} 
+              height={48}
+              className="w-full h-full object-cover"
+              unoptimized
             />
           </div>
           <div>
@@ -171,8 +173,11 @@ export function FamilySection() {
           <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <Avatar className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 border-4 border-white shadow-lg">
-                  <AvatarFallback className="text-3xl text-white">{currentUser.avatar}</AvatarFallback>
+                <Avatar className="w-16 h-16 border-4 border-emerald-400 shadow-lg">
+                  {currentUser.avatarUrl && (
+                    <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} className="object-cover" />
+                  )}
+                  <AvatarFallback className="text-3xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white">{currentUser.avatar}</AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold text-lg">{currentUser.name}</h3>
@@ -192,8 +197,11 @@ export function FamilySection() {
               <Card key={child.id} className="hover:shadow-md transition-all">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-400 border-4 border-white shadow-lg">
-                      <AvatarFallback className="text-3xl text-white">{child.avatar}</AvatarFallback>
+                    <Avatar className="w-16 h-16 border-4 border-yellow-400 shadow-lg">
+                      {child.avatarUrl && (
+                        <AvatarImage src={child.avatarUrl} alt={child.name} className="object-cover" />
+                      )}
+                      <AvatarFallback className="text-3xl bg-gradient-to-br from-yellow-400 to-orange-400 text-white">{child.avatar}</AvatarFallback>
                     </Avatar>
                     <div>
                       <h3 className="font-semibold text-lg">{child.name}</h3>
@@ -216,13 +224,14 @@ export function FamilySection() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg">
+          <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg">
             <Image 
-              src="/images/loricoin-mascot.png" 
+              src={LORICOIN_IMAGES.coin}
               alt="Familia" 
-              width={36} 
-              height={36}
-              className="w-9 h-9"
+              width={56} 
+              height={56}
+              className="w-full h-full object-cover"
+              unoptimized
             />
           </div>
           <div>
@@ -241,8 +250,11 @@ export function FamilySection() {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Avatar className="w-14 h-14 bg-white/20 border-2 border-white/50">
-                <AvatarFallback className="text-2xl text-white">{currentUser.avatar}</AvatarFallback>
+              <Avatar className="w-14 h-14 border-2 border-white/70 shadow-lg">
+                {currentUser.avatarUrl && (
+                  <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} className="object-cover" />
+                )}
+                <AvatarFallback className="text-2xl bg-white/20 text-white">{currentUser.avatar}</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="font-semibold text-lg">{currentUser.name}</h3>
@@ -278,8 +290,11 @@ export function FamilySection() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Avatar className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-400 border-4 border-white shadow-lg">
-                      <AvatarFallback className="text-2xl text-white">{child.avatar}</AvatarFallback>
+                    <Avatar className="w-14 h-14 border-4 border-yellow-400 shadow-lg">
+                      {child.avatarUrl && (
+                        <AvatarImage src={child.avatarUrl} alt={child.name} className="object-cover" />
+                      )}
+                      <AvatarFallback className="text-2xl bg-gradient-to-br from-yellow-400 to-orange-400 text-white">{child.avatar}</AvatarFallback>
                     </Avatar>
                     <div>
                       <CardTitle className="text-lg">{child.name}</CardTitle>

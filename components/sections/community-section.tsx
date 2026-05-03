@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { COMMUNITY_KIDS } from "@/lib/loricoin-assets"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Trophy,
@@ -22,13 +23,13 @@ import {
 import { mockChallenges, mockAchievements } from "@/lib/mock-data"
 
 const leaderboard = [
-  { rank: 1, name: "Martin G.", avatar: "👦", loriCoins: 2850, streak: 15 },
-  { rank: 2, name: "Valentina R.", avatar: "👧", loriCoins: 2640, streak: 12 },
-  { rank: 3, name: "Lucas D.", avatar: "👦", loriCoins: 2450, streak: 10 },
-  { rank: 4, name: "Sofia M.", avatar: "👧", loriCoins: 2200, streak: 8 },
-  { rank: 5, name: "Tu", avatar: "⭐", loriCoins: 1980, streak: 7, isCurrentUser: true },
-  { rank: 6, name: "Mateo L.", avatar: "👦", loriCoins: 1850, streak: 6 },
-  { rank: 7, name: "Emma P.", avatar: "👧", loriCoins: 1720, streak: 5 },
+  { rank: 1, name: "Tony S.", avatar: "👦", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%205.jpg-DWyTNtcHFgMqhfVLh5nK8nmWrDgPd8.webp", loriCoins: 2850, streak: 15 },
+  { rank: 2, name: "Mei L.", avatar: "👧", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%206-UKmAtH4fnZtmugi3E7UMHBik2D3LMw.jpg", loriCoins: 2640, streak: 12 },
+  { rank: 3, name: "Lucas M.", avatar: "👦", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%202-v6A7Sc22VPrN1NPldNHcHloBW6HSis.jpg", loriCoins: 2450, streak: 10 },
+  { rank: 4, name: "Sofia R.", avatar: "👧", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%203.jpg-qzvHE78SoMq4XsWDC9Bh5mluYhbYp3.webp", loriCoins: 2200, streak: 8 },
+  { rank: 5, name: "Betito", avatar: "⭐", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hijo%20Betito%20Bascu%C3%B1an-YuQ3dfEOOXKo6vvKWWN1y1SP7pDlGI.jpeg", loriCoins: 1980, streak: 7, isCurrentUser: true },
+  { rank: 6, name: "Akali P.", avatar: "👧", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Ni%C3%B1os%20varios%207-R2qVeqlhv1mDu4W6vqbkdLO2KnY6hO.jpg", loriCoins: 1850, streak: 6 },
+  { rank: 7, name: "Martina B.", avatar: "👧", avatarUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hija%20Martina%20Bascu%C3%B1an-gwPtceHKc1alEcvq8K8pnDC2JaPtBv.jpeg", loriCoins: 1720, streak: 5 },
 ]
 
 const weeklyChallenge = {
@@ -131,7 +132,8 @@ export function CommunitySection() {
               <CardContent>
                 <div className="flex items-end justify-center gap-4 mb-8">
                   <div className="text-center">
-                    <Avatar className="w-16 h-16 mx-auto mb-2 bg-gray-200">
+                    <Avatar className="w-16 h-16 mx-auto mb-2 border-4 border-gray-300">
+                      <AvatarImage src={leaderboard[1].avatarUrl} alt={leaderboard[1].name} className="object-cover" />
                       <AvatarFallback className="text-2xl">{leaderboard[1].avatar}</AvatarFallback>
                     </Avatar>
                     <p className="font-medium text-sm">{leaderboard[1].name}</p>
@@ -141,7 +143,8 @@ export function CommunitySection() {
                     </div>
                   </div>
                   <div className="text-center">
-                    <Avatar className="w-20 h-20 mx-auto mb-2 bg-yellow-100 ring-4 ring-yellow-400">
+                    <Avatar className="w-20 h-20 mx-auto mb-2 ring-4 ring-yellow-400">
+                      <AvatarImage src={leaderboard[0].avatarUrl} alt={leaderboard[0].name} className="object-cover" />
                       <AvatarFallback className="text-3xl">{leaderboard[0].avatar}</AvatarFallback>
                     </Avatar>
                     <p className="font-semibold">{leaderboard[0].name}</p>
@@ -151,7 +154,8 @@ export function CommunitySection() {
                     </div>
                   </div>
                   <div className="text-center">
-                    <Avatar className="w-16 h-16 mx-auto mb-2 bg-amber-100">
+                    <Avatar className="w-16 h-16 mx-auto mb-2 border-4 border-amber-300">
+                      <AvatarImage src={leaderboard[2].avatarUrl} alt={leaderboard[2].name} className="object-cover" />
                       <AvatarFallback className="text-2xl">{leaderboard[2].avatar}</AvatarFallback>
                     </Avatar>
                     <p className="font-medium text-sm">{leaderboard[2].name}</p>
@@ -172,7 +176,8 @@ export function CommunitySection() {
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-8 text-center">{getRankIcon(player.rank)}</div>
-                        <Avatar className="w-10 h-10 bg-secondary/50">
+                        <Avatar className="w-10 h-10 border-2 border-emerald-300">
+                          <AvatarImage src={player.avatarUrl} alt={player.name} className="object-cover" />
                           <AvatarFallback>{player.avatar}</AvatarFallback>
                         </Avatar>
                         <div>
