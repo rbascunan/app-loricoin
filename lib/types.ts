@@ -3,6 +3,7 @@ export interface User {
   name: string
   email?: string
   avatar: string
+  avatarUrl?: string
   role: 'parent' | 'child'
   balance: number
   loriCoins: number
@@ -13,7 +14,9 @@ export interface User {
 export interface Child {
   id: string
   name: string
+  fullName?: string
   avatar: string
+  avatarUrl?: string
   balance: number
   loriCoins: number
   savings: number

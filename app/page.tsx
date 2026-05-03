@@ -16,6 +16,8 @@ import { NotificationsPanel } from "@/components/notifications-panel"
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
 import Image from "next/image"
+import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 function AppContent() {
   const { isLoggedIn, logout, currentUser, isChildMode } = useApp()
@@ -66,18 +68,24 @@ function AppContent() {
         <header className="sticky top-0 z-40 flex items-center justify-between px-4 md:px-6 lg:px-8 py-3 border-b bg-white/80 backdrop-blur-md shadow-sm">
           <div className="flex items-center gap-3">
             {/* Mobile Logo */}
-            <div className="lg:hidden w-10 h-10 rounded-full overflow-hidden bg-emerald-100">
+            <div className="lg:hidden w-10 h-10 rounded-full overflow-hidden">
               <Image 
-                src="/images/loricoin-mascot.png" 
+                src={LORICOIN_IMAGES.coin}
                 alt="LoriCoin" 
                 width={40} 
                 height={40}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
+                unoptimized
               />
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-lg text-white font-bold shadow-md">
-              {currentUser.avatar}
-            </div>
+            <Avatar className="w-10 h-10 border-2 border-emerald-400 shadow-md">
+              {currentUser.avatarUrl && (
+                <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} className="object-cover" />
+              )}
+              <AvatarFallback className="bg-gradient-to-br from-emerald-400 to-teal-500 text-white font-bold">
+                {currentUser.avatar}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <p className="text-sm font-semibold text-gray-800">{currentUser.name}</p>
               <p className="text-xs text-emerald-600 font-medium">
@@ -89,11 +97,12 @@ function AppContent() {
             {/* LoriCoins Badge */}
             <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md">
               <Image 
-                src="/images/loricoin-mascot.png" 
+                src={LORICOIN_IMAGES.coin}
                 alt="LoriCoins" 
                 width={24} 
                 height={24}
-                className="w-6 h-6"
+                className="w-6 h-6 rounded-full"
+                unoptimized
               />
               <span className="text-sm font-bold">{currentUser.loriCoins}</span>
             </div>
