@@ -1,5 +1,11 @@
 import { streamText, tool, convertToModelMessages } from 'ai'
+import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
+
+// Initialize Groq client (FREE!)
+const groq = createGroq({
+  apiKey: process.env.GROQ_API_KEY,
+})
 
 // System prompt for LorIA - the financial education AI assistant for kids
 const LORIA_SYSTEM_PROMPT = `Eres LorIA, una asistente de educacion financiera amigable y divertida para ninos y adolescentes. Tu personalidad es:
@@ -34,7 +40,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
 
     const result = streamText({
-      model: 'openai/gpt-5-mini',
+      model: groq('llama-3.3-70b-versatile'), // FREE with Groq!
       system: LORIA_SYSTEM_PROMPT,
       messages: await convertToModelMessages(messages),
       tools: {
