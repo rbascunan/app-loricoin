@@ -119,7 +119,7 @@ interface Message {
 }
 
 export function LoriaSection() {
-  const { isChildMode, selectedChild, currentUser, addLoriCoins, triggerAction } = useApp()
+  const { isChildMode, selectedChild, currentUser, addLoriCoins, checkGoldenRule } = useApp()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const user = isChildMode && selectedChild ? selectedChild : currentUser
@@ -208,9 +208,9 @@ export function LoriaSection() {
         }
 
         // Give LoriCoins for completing a lesson
-        if (assistantContent.length > 100) {
-          addLoriCoins(30, "Completaste una leccion con LorIA")
-          triggerAction("complete_lesson")
+        if (assistantContent.length > 100 && user) {
+          addLoriCoins(user.id, 30, "Completaste una leccion con LorIA")
+          checkGoldenRule('rule-8', user.id) // Learning rule
         }
 
       } catch (error) {
@@ -226,8 +226,10 @@ export function LoriaSection() {
         }])
         
         // Give LoriCoins for learning
-        addLoriCoins(30, "Completaste una leccion con LorIA")
-        triggerAction("complete_lesson")
+        if (user) {
+          addLoriCoins(user.id, 30, "Completaste una leccion con LorIA")
+          checkGoldenRule('rule-8', user.id)
+        }
       }
     } else {
       // Use local fallback directly
@@ -241,12 +243,14 @@ export function LoriaSection() {
       }])
       
       // Give LoriCoins for learning
-      addLoriCoins(30, "Completaste una leccion con LorIA")
-      triggerAction("complete_lesson")
+      if (user) {
+        addLoriCoins(user.id, 30, "Completaste una leccion con LorIA")
+        checkGoldenRule('rule-8', user.id)
+      }
     }
 
     setIsLoading(false)
-  }, [messages, isLoading, useLocalFallback, addLoriCoins, triggerAction])
+  }, [messages, isLoading, useLocalFallback, addLoriCoins, checkGoldenRule, user])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
