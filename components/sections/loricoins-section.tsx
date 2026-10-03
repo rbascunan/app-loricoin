@@ -110,7 +110,7 @@ export function LoricoinsSection() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">LoriCoins</h1>
         <p className="text-muted-foreground">
-          Tus monedas de recompensa en la blockchain Stellar
+          Tus monedas de recompensa en la blockchain Monad
         </p>
       </div>
 
@@ -144,14 +144,13 @@ export function LoricoinsSection() {
               </div>
               <div className="flex items-center gap-2">
                 <Image 
-                  src={LORICOIN_IMAGES.stellar}
-                  alt="Stellar" 
+                  src={LORICOIN_IMAGES.monad}
+                  alt="" 
                   width={20} 
                   height={20}
-                  className="w-5 h-5"
-                  unoptimized
+                  className="w-5 h-5 rounded-md"
                 />
-                <span className="text-sm">Protegido por Stellar</span>
+                <span className="text-sm">Protegido por Monad</span>
               </div>
               {isChildMode && selectedChild && (
                 <div className="flex items-center gap-2">
@@ -455,7 +454,7 @@ export function LoricoinsSection() {
         </TabsContent>
       </Tabs>
 
-      {/* Stellar Info */}
+      {/* Monad Info */}
       <Card className="bg-muted/30">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
@@ -463,11 +462,11 @@ export function LoricoinsSection() {
               <Info className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold mb-1">Que es Stellar?</h3>
+              <h3 className="font-semibold mb-1">Que es Monad?</h3>
               <p className="text-sm text-muted-foreground">
-                Los LoriCoins estan respaldados por la blockchain de Stellar, una red segura y
-                ecologica que permite transacciones rapidas. Esto significa que tus recompensas
-                son reales, seguras y pueden crecer contigo a medida que aprendes sobre finanzas.
+                Los LoriCoins estan respaldados por la blockchain de Monad, una red segura y
+                ultra rapida que permite miles de transacciones por segundo. Esto significa que tus
+                recompensas son reales, seguras y pueden crecer contigo a medida que aprendes sobre finanzas.
               </p>
             </div>
           </div>

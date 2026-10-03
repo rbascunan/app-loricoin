@@ -15,17 +15,14 @@ export const LORICOIN_IMAGES = {
   // Lorito con baul del tesoro - para balance y saldos
   treasure: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10-YubOGaa0ksgq0NGOx9OkWS83avGJHV.png",
   
-  // Stellar blockchain logo (negro - para usar fuera del menu)
-  stellar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/stellar-vqHCAbG6CKBCvEAusxnA5E4Hu0XcjS.avif",
+  // Monad blockchain logo (morado - para usar fuera del menu)
+  monad: "/images/monad.png",
 }
 
 // Iconos blancos con fondo transparente para el menu
 export const WHITE_ICONS = {
   // Icono AI blanco con destellos
   ai: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%C3%8Dcono%20IA-w3dusKrt7qOmwearN8pdP5uW2dcXwr.png",
-  
-  // Logo Stellar blanco
-  stellar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo%20Stellar-fjBYylRwHMP638YzdoNhji6DEjRPIE.png",
 }
 
 // Fotos de la familia Bascunan

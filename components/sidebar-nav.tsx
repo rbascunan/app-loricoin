@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { useApp } from "@/lib/app-context"
 import { LORICOIN_IMAGES, WHITE_ICONS } from "@/lib/loricoin-assets"
+import { MonadIcon } from "@/components/monad-icon"
 import {
   LayoutDashboard,
   Users,
@@ -34,7 +35,7 @@ const navItems = [
   { id: "movements", label: "Movimientos", icon: ArrowRightLeft },
   { id: "loria", label: "LorIA", icon: Bot, rightIcon: "ai" },
   { id: "community", label: "Comunidad", icon: Gamepad2 },
-  { id: "loricoins", label: "LoriCoins", icon: Coins, rightIcon: "stellar" },
+  { id: "loricoins", label: "LoriCoins", icon: Coins, rightIcon: "monad" },
   { id: "premios", label: "Premios", icon: Gift, isNew: true },
 ]
 
@@ -163,7 +164,7 @@ export function SidebarNav({
                 {/* Label */}
                 {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
                 
-                {/* Right Icon - AI or Stellar (white versions) */}
+                {/* Right Icon - AI or Monad (white versions) */}
                 {!collapsed && item.rightIcon === "ai" && (
                   <Image 
                     src={WHITE_ICONS.ai}
@@ -174,15 +175,8 @@ export function SidebarNav({
                     unoptimized
                   />
                 )}
-                {!collapsed && item.rightIcon === "stellar" && (
-                  <Image 
-                    src={WHITE_ICONS.stellar}
-                    alt="Stellar" 
-                    width={20} 
-                    height={20}
-                    className="w-5 h-5 object-contain"
-                    unoptimized
-                  />
+                {!collapsed && item.rightIcon === "monad" && (
+                  <MonadIcon className="w-5 h-5 shrink-0" />
                 )}
                 
                 {/* New badge for Premios */}
