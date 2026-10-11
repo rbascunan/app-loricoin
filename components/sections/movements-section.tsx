@@ -72,7 +72,6 @@ export function MovementsSection() {
   const handleManualTransaction = () => {
     if (manualAmount && manualDescription && manualCategory) {
       addTransaction({
-        id: Date.now().toString(),
         type: manualType,
         amount: Number(manualAmount),
         description: manualDescription,

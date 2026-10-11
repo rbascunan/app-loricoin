@@ -293,7 +293,6 @@ export function PremiosSection() {
       
       // Add transaction to movements
       addTransaction({
-        id: Date.now().toString(),
         type: 'expense',
         amount: 0,
         description: `Canje Premio: ${selectedPremio.name}`,

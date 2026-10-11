@@ -88,7 +88,6 @@ export function FamilySection() {
       const amount = Number(adjustAmount)
       const type = adjustType === "add" ? "income" : "expense"
       addTransaction({
-        id: Date.now().toString(),
         type,
         amount,
         description: adjustReason,

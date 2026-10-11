@@ -150,9 +150,15 @@ export async function POST(req: Request) {
     if (action === 'sync') {
       // Sync lessons to Supabase (demonstrating MCP -> DB flow)
       const supabase = await createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        return Response.json({ success: false, error: 'No autorizado' }, { status: 401 })
+      }
 
       for (const lesson of FINANCIAL_LESSONS) {
-        await supabase.from('notion_lessons').upsert(
+        const { error } = await supabase.from('notion_lessons').upsert(
           {
             notion_page_id: lesson.notion_page_id,
             title: lesson.title,
@@ -164,6 +170,9 @@ export async function POST(req: Request) {
           },
           { onConflict: 'notion_page_id' }
         )
+        if (error) {
+          return Response.json({ success: false, error: 'Sin permisos para sincronizar' }, { status: 403 })
+        }
       }
 
       return Response.json({

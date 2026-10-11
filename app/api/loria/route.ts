@@ -1,4 +1,4 @@
-import { streamText, tool } from 'ai'
+import { stepCountIs, streamText, tool } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 
@@ -81,14 +81,16 @@ FORMATO:
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const messages = body?.messages || []
+    const rawMessages = body?.messages || []
 
-    if (!Array.isArray(messages) || messages.length === 0) {
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0 || JSON.stringify(rawMessages).length > 50_000) {
       return new Response(
         JSON.stringify({ error: 'No messages provided' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
+
+    const messages = rawMessages.slice(-20)
 
     const result = streamText({
       model: groq('llama-3.3-70b-versatile'), // FREE with Groq!
@@ -191,7 +193,7 @@ export async function POST(req: Request) {
           },
         }),
       },
-      maxSteps: 5,
+      stopWhen: stepCountIs(5),
     })
 
     return result.toUIMessageStreamResponse()
