@@ -142,8 +142,8 @@ export function createSupabaseRepo() {
         p_amount: amount,
       })
       if (error) {
-        if (/Hijo no encontrado/.test(error.message)) return { ok: false, reason: "not_found" }
-        if (/Sin saldo/.test(error.message)) return { ok: false, reason: "no_balance" }
+        if (/CHILD_NOT_FOUND/.test(error.message)) return { ok: false, reason: "not_found" }
+        if (/NO_BALANCE/.test(error.message)) return { ok: false, reason: "no_balance" }
         throw error
       }
       const row = (Array.isArray(data) ? data[0] : data) as { amount: number; balance: number }
