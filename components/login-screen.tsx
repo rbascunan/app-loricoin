@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ErrorText } from "@/components/loricoin/task-ui"
+import { AppFooter } from "@/components/app-footer"
+import { PasswordInput } from "@/components/password-input"
 import { useApp } from "@/lib/app-context"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import { childEmailFor, isValidPin, isValidUsername, normalizeUsername } from "@/lib/loricoin/rules"
@@ -94,9 +96,8 @@ function ParentForm() {
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="parent-password">Contraseña</Label>
-        <Input
+        <PasswordInput
           id="parent-password"
-          type="password"
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -174,9 +175,8 @@ function ChildForm() {
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="child-pin">Tu PIN de 6 números</Label>
-        <Input
+        <PasswordInput
           id="child-pin"
-          type="password"
           inputMode="numeric"
           autoComplete="current-password"
           value={pin}
@@ -199,7 +199,8 @@ function ChildForm() {
 
 export function LoginScreen() {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-yellow-50 p-4">
+    <div className="flex min-h-dvh flex-col bg-gradient-to-br from-emerald-50 via-teal-50 to-yellow-50">
+    <main className="flex flex-1 items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="items-center text-center">
           <div className="relative mx-auto h-24 w-24">
@@ -224,5 +225,7 @@ export function LoginScreen() {
         </CardContent>
       </Card>
     </main>
+    <AppFooter />
+    </div>
   )
 }

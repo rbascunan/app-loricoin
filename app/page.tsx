@@ -5,6 +5,7 @@ import { Bell, Loader2, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { LoginScreen } from "@/components/login-screen"
+import { AppFooter } from "@/components/app-footer"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { ComingSoonSection } from "@/components/coming-soon"
@@ -107,9 +108,10 @@ export default function Home() {
           </div>
         </header>
 
-        <main className={`flex-1 p-4 pb-24 md:p-6 md:pb-6 ${activeSection === "loria" ? "flex h-[calc(100dvh-4rem)] flex-col" : ""}`}>
+        <main className={`flex-1 p-4 md:p-6 ${activeSection === "loria" ? "flex h-[calc(100dvh-4rem)] flex-col" : ""}`}>
           {renderSection()}
         </main>
+        <AppFooter className="border-t pb-24 md:pb-3" />
       </div>
 
       <MobileNav activeSection={activeSection} onSectionChange={setActiveSection} />
