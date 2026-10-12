@@ -53,17 +53,21 @@ function ParentForm() {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
         if (error) setError(translateAuthError(error.message))
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: {
-            data: { name: name.trim() },
-            emailRedirectTo:
-              process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/callback`,
-          },
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
         })
-        if (error) setError(translateAuthError(error.message))
-        else if (!data.session) setInfo("Te enviamos un correo para confirmar tu cuenta. Después volvé y entrá.")
+        if (!res.ok) {
+          const body = (await res.json().catch(() => null)) as { error?: string } | null
+          setError(body?.error ?? "No pudimos crear la cuenta. Intentá de nuevo.")
+          return
+        }
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+        if (error) {
+          setMode("login")
+          setInfo("Cuenta creada. Ingresá con tu correo y contraseña.")
+        }
       }
     } finally {
       setPending(false)
