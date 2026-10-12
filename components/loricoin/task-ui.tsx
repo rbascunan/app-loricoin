@@ -9,6 +9,7 @@ import type { Task, TaskStatus } from "@/lib/loricoin/types"
 const STATUS_STYLES: Record<TaskStatus, { label: string; className: string }> = {
   pendiente: { label: "Pendiente", className: "bg-sky-100 text-sky-800" },
   terminada: { label: "Terminada", className: "bg-yellow-100 text-yellow-800" },
+  pagando: { label: "Pagando en Solana…", className: "bg-violet-100 text-violet-800" },
   pagada: { label: "Pagada", className: "bg-emerald-100 text-emerald-800" },
   rechazada: { label: "Rechazada", className: "bg-red-100 text-red-800" },
 }

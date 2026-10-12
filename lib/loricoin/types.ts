@@ -1,6 +1,6 @@
 export type Role = "parent" | "child"
 
-export type TaskStatus = "pendiente" | "terminada" | "pagada" | "rechazada"
+export type TaskStatus = "pendiente" | "terminada" | "pagando" | "pagada" | "rechazada"
 
 export interface Profile {
   id: string
@@ -9,6 +9,7 @@ export interface Profile {
   parent_id: string | null
   username: string | null
   lori_coins: number
+  wallet_address: string | null
 }
 
 export interface ChildSummary {
@@ -16,6 +17,20 @@ export interface ChildSummary {
   name: string
   username: string | null
   lori_coins: number
+  wallet_address: string | null
+}
+
+export interface WalletBalance {
+  childId: string
+  address: string | null
+  amount: number
+  source: "chain" | "cache"
+}
+
+export interface WalletResponse {
+  mint: string | null
+  balances: WalletBalance[]
+  chainOk: boolean
 }
 
 export interface Task {
@@ -30,6 +45,11 @@ export interface Task {
   created_at: string
   done_at: string | null
   resolved_at: string | null
+  tx_signature: string | null
+  paid_at: string | null
+  error_message: string | null
+  payment_started_at: string | null
+  payment_last_valid_height: number | null
 }
 
 export interface Penalty {
@@ -39,6 +59,7 @@ export interface Penalty {
   reason: string
   amount: number
   created_at: string
+  tx_signature: string | null
 }
 
 export interface MeResponse {

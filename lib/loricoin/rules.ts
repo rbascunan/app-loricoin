@@ -7,7 +7,17 @@ export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 export const MIN_REWARD = 1
 export const MAX_REWARD = 50
 export const MAX_ACTIVE_TASKS_PER_CHILD = 20
-export const ACTIVE_TASK_STATUSES: TaskStatus[] = ["pendiente", "terminada"]
+export const ACTIVE_TASK_STATUSES: TaskStatus[] = ["pendiente", "terminada", "pagando"]
+export const DAILY_FAMILY_MINT_LIMIT = 200
+export const MIN_AUTHORITY_SOL_TO_PAY = 0.02
+export const PAYMENT_STALE_MS = 2 * 60 * 1000
+export const SOLANA_CLUSTER = "devnet"
+
+export const explorerTxUrl = (signature: string) =>
+  `https://explorer.solana.com/tx/${signature}?cluster=${SOLANA_CLUSTER}`
+export const explorerAddressUrl = (address: string) =>
+  `https://explorer.solana.com/address/${address}?cluster=${SOLANA_CLUSTER}`
+export const shortAddress = (address: string) => `${address.slice(0, 4)}…${address.slice(-4)}`
 export const PENALTY_LIMITS = { reason: 120, maxAmount: 50 } as const
 
 export const LIMITS = {

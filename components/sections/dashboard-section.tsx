@@ -22,7 +22,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function DashboardSection({ onNavigate }: { onNavigate: (section: SectionId) => void }) {
-  const { profile, children, tasks, isChildMode } = useApp()
+  const { profile, children, tasks, isChildMode, balanceOf } = useApp()
   const firstName = profile?.name.split(" ")[0] ?? ""
 
   const toReview = tasks.filter((t) => t.status === "terminada").length
@@ -67,7 +67,7 @@ export function DashboardSection({ onNavigate }: { onNavigate: (section: Section
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {isChildMode ? (
           <>
-            <Stat label="Tus LoriCoins" value={<CoinAmount amount={profile?.lori_coins ?? 0} className="text-2xl" />} />
+            <Stat label="Tus LoriCoins" value={<CoinAmount amount={balanceOf(profile?.id, profile?.lori_coins ?? 0)} className="text-2xl" />} />
             <Stat label="Para hacer" value={pending} />
             <Stat label="Esperando aprobación" value={toReview} />
           </>

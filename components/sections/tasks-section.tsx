@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { CoinBurst, VerifiedOnSolana } from "@/components/loricoin/solana-ui"
 import { CoinAmount, EmptyState, ErrorText, TaskCard, TaskGroup } from "@/components/loricoin/task-ui"
 import { useApp } from "@/lib/app-context"
 import { postJson } from "@/lib/loricoin/client-utils"
@@ -19,6 +20,7 @@ function useTaskAction() {
   const { refresh } = useApp()
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [celebrate, setCelebrate] = useState(false)
 
   const run = async (taskId: string, action: "complete" | "approve" | "reject", body?: unknown) => {
     if (busyId) return
@@ -26,6 +28,10 @@ function useTaskAction() {
     setError(null)
     try {
       await postJson(`/api/tasks/${taskId}/${action}`, body)
+      if (action === "approve") {
+        setCelebrate(true)
+        setTimeout(() => setCelebrate(false), 1200)
+      }
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -34,7 +40,7 @@ function useTaskAction() {
     }
   }
 
-  return { busyId, error, run }
+  return { busyId, error, run, celebrate }
 }
 
 function CreateTaskForm() {
@@ -180,9 +186,15 @@ function ReviewActions({
 
   return (
     <>
-      <Button size="sm" disabled={busy} onClick={onApprove} className="bg-emerald-600 text-white hover:bg-emerald-700">
+      <Button
+        size="sm"
+        disabled={busy}
+        aria-busy={busy}
+        onClick={onApprove}
+        className="bg-emerald-600 text-white hover:bg-emerald-700"
+      >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Check className="h-4 w-4" aria-hidden="true" />}
-        Aprobar y pagar
+        {busy ? "Enviando a Solana..." : "Aprobar"}
       </Button>
       <Button size="sm" variant="outline" disabled={busy} onClick={() => setRejecting(true)}>
         <X className="h-4 w-4" aria-hidden="true" />
@@ -194,7 +206,7 @@ function ReviewActions({
 
 function ParentTasks({ onNavigate }: { onNavigate: (section: SectionId) => void }) {
   const { children, tasks } = useApp()
-  const { busyId, error, run } = useTaskAction()
+  const { busyId, error, run, celebrate } = useTaskAction()
   const childName = (id: string) => children.find((c) => c.id === id)?.name ?? "Hijo"
 
   if (children.length === 0) {
@@ -212,12 +224,13 @@ function ParentTasks({ onNavigate }: { onNavigate: (section: SectionId) => void 
   }
 
   const byStatus = (status: Task["status"]) => tasks.filter((t) => t.status === status)
-  const toReview = byStatus("terminada")
+  const toReview = [...byStatus("terminada"), ...byStatus("pagando")]
   const pending = byStatus("pendiente")
   const resolved = tasks.filter((t) => t.status === "pagada" || t.status === "rechazada")
 
   return (
     <div className="flex flex-col gap-6">
+      <CoinBurst show={celebrate} />
       <CreateTaskForm />
       <ErrorText message={error} />
       <TaskGroup title="Para revisar" description="Tu hijo dice que las terminó." count={toReview.length}>
@@ -230,14 +243,30 @@ function ParentTasks({ onNavigate }: { onNavigate: (section: SectionId) => void 
               task={task}
               childName={childName(task.child_id)}
               footer={
-                <ReviewActions
-                  task={task}
-                  busy={busyId === task.id}
-                  onApprove={() => run(task.id, "approve")}
-                  onReject={(note) => run(task.id, "reject", { note })}
-                />
+                task.status === "pagando" && busyId !== task.id ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 text-sm text-violet-700" role="status">
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      Confirmando en Solana...
+                    </span>
+                    <Button size="sm" variant="outline" onClick={() => run(task.id, "approve")}>
+                      Reintentar
+                    </Button>
+                  </div>
+                ) : (
+                  <ReviewActions
+                    task={task}
+                    busy={busyId === task.id}
+                    onApprove={() => run(task.id, "approve")}
+                    onReject={(note) => run(task.id, "reject", { note })}
+                  />
+                )
               }
-            />
+            >
+              {task.error_message && task.status === "terminada" && (
+                <p className="text-sm text-red-700">Último intento: {task.error_message}</p>
+              )}
+            </TaskCard>
           ))
         )}
       </TaskGroup>
@@ -255,6 +284,7 @@ function ParentTasks({ onNavigate }: { onNavigate: (section: SectionId) => void 
               {task.status === "rechazada" && task.rejection_note && (
                 <p className="text-sm text-muted-foreground">Nota: {task.rejection_note}</p>
               )}
+              {task.status === "pagada" && task.tx_signature && <VerifiedOnSolana signature={task.tx_signature} />}
             </TaskCard>
           ))}
         </TaskGroup>
@@ -264,11 +294,11 @@ function ParentTasks({ onNavigate }: { onNavigate: (section: SectionId) => void 
 }
 
 function ChildTasks() {
-  const { tasks, profile } = useApp()
+  const { tasks, profile, balanceOf } = useApp()
   const { busyId, error, run } = useTaskAction()
 
   const pending = tasks.filter((t) => t.status === "pendiente")
-  const waiting = tasks.filter((t) => t.status === "terminada")
+  const waiting = tasks.filter((t) => t.status === "terminada" || t.status === "pagando")
   const rejected = tasks.filter((t) => t.status === "rechazada")
   const paid = tasks.filter((t) => t.status === "pagada")
 
@@ -278,7 +308,7 @@ function ChildTasks() {
         <CardContent className="flex items-center justify-between gap-4 p-5">
           <div>
             <p className="text-sm text-white/90">Tus LoriCoins</p>
-            <p className="text-3xl font-bold">{profile?.lori_coins ?? 0}</p>
+            <p className="text-3xl font-bold">{balanceOf(profile?.id, profile?.lori_coins ?? 0)}</p>
           </div>
           <p className="max-w-[12rem] text-right text-sm text-white/90">Terminá tus tareas para ganar más.</p>
         </CardContent>
@@ -334,7 +364,17 @@ function ChildTasks() {
       {paid.length > 0 && (
         <TaskGroup title="Cobradas" count={paid.length}>
           {paid.map((task) => (
-            <TaskCard key={task.id} task={task} footer={<span className="text-sm text-emerald-700">Ganaste <CoinAmount amount={task.reward} /></span>} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              footer={
+                <span className="text-sm text-emerald-700">
+                  Ganaste <CoinAmount amount={task.reward} />
+                </span>
+              }
+            >
+              {task.tx_signature && <VerifiedOnSolana signature={task.tx_signature} />}
+            </TaskCard>
           ))}
         </TaskGroup>
       )}

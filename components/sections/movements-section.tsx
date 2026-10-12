@@ -1,6 +1,8 @@
 "use client"
 
+import { ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { explorerTxUrl } from "@/components/loricoin/solana-ui"
 import { CoinAmount, EmptyState } from "@/components/loricoin/task-ui"
 import { useApp } from "@/lib/app-context"
 import { formatDate } from "@/lib/loricoin/client-utils"
@@ -11,6 +13,7 @@ interface Movement {
   childId: string
   date: string
   amount: number
+  signature: string | null
   kind: "pago" | "descuento"
 }
 
@@ -26,6 +29,7 @@ export function MovementsSection() {
         childId: t.child_id,
         date: t.resolved_at ?? t.created_at,
         amount: t.reward,
+        signature: t.tx_signature,
         kind: "pago" as const,
       })),
     ...penalties.map((p) => ({
@@ -34,6 +38,7 @@ export function MovementsSection() {
       childId: p.child_id,
       date: p.created_at,
       amount: p.amount,
+      signature: p.tx_signature,
       kind: "descuento" as const,
     })),
   ].sort((a, b) => b.date.localeCompare(a.date))
@@ -87,6 +92,18 @@ export function MovementsSection() {
                       {m.kind === "descuento" ? "Descuento" : "Tarea aprobada"}
                       {!isChildMode && ` · ${childName(m.childId)}`} · {formatDate(m.date)}
                     </span>
+                    {m.signature && (
+                      <a
+                        href={explorerTxUrl(m.signature)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-violet-700 underline-offset-2 hover:underline"
+                      >
+                        Ver en Solana Explorer
+                        <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                        <span className="sr-only">(se abre en otra pestaña)</span>
+                      </a>
+                    )}
                   </div>
                   <span
                     className={`flex items-center gap-1 ${m.kind === "descuento" ? "text-red-700" : "text-emerald-700"}`}

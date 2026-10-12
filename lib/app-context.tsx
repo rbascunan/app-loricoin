@@ -3,7 +3,13 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import useSWR from "swr"
 import { createClient } from "@/lib/supabase/client"
-import type { ChildSummary, MeResponse, Penalty, Profile, Task } from "@/lib/loricoin/types"
+import type { ChildSummary, MeResponse, Penalty, Profile, Task, WalletResponse } from "@/lib/loricoin/types"
+
+async function fetchWallet([url]: [string, string]): Promise<WalletResponse> {
+  const res = await fetch(url, { cache: "no-store" })
+  if (!res.ok) throw new Error("No se pudo consultar el saldo")
+  return (await res.json()) as WalletResponse
+}
 
 type AuthStatus = "loading" | "signedOut" | "signedIn"
 
@@ -26,6 +32,9 @@ async function fetchMe([url]: [string, string]): Promise<MeResponse> {
 interface AppContextValue {
   supabase: ReturnType<typeof createClient>
   authStatus: AuthStatus
+  wallet: WalletResponse | null
+  /** Saldo on-chain del hijo; si Solana no respondió, usa el valor de respaldo. */
+  balanceOf: (childId: string | undefined, fallback: number) => number
   profile: Profile | null
   children: ChildSummary[]
   tasks: Task[]
@@ -69,9 +78,20 @@ export function AppProvider({ children: content }: { children: ReactNode }) {
     { refreshInterval: 8000, revalidateOnFocus: true, revalidateOnReconnect: true },
   )
 
+  const { data: wallet, mutate: mutateWallet } = useSWR(
+    authStatus === "signedIn" && userId ? ["/api/wallet", userId] : null,
+    fetchWallet,
+    { refreshInterval: 15000, revalidateOnFocus: true },
+  )
+
+  const balanceOf = (childId: string | undefined, fallback: number) =>
+    wallet?.balances.find((b) => b.childId === childId)?.amount ?? fallback
+
   const value: AppContextValue = {
     supabase,
     authStatus,
+    wallet: wallet ?? null,
+    balanceOf,
     profile: data?.profile ?? null,
     children: data?.children ?? [],
     tasks: data?.tasks ?? [],
@@ -79,7 +99,7 @@ export function AppProvider({ children: content }: { children: ReactNode }) {
     isChildMode: data?.profile.role === "child",
     isLoadingData: isLoading,
     dataError: error ? (error as Error).message : null,
-    refresh: () => mutate(),
+    refresh: () => Promise.all([mutate(), mutateWallet()]),
     signOut: async () => {
       await supabase.auth.signOut()
     },
