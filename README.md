@@ -1,33 +1,84 @@
-# app-loricoin
+# LoriCoin
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+**Chores become rewards. Rewards become real digital ownership.**
 
-## Built with v0
+LoriCoin is a family app where parents assign tasks, kids complete them, and approved tasks earn **LoriCoins**, an SPL token on Solana. It teaches children responsibility, saving and the basics of digital money, with a parent always in control.
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argentina. Neither of us had built anything on web3 before this hackathon.
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_eIzXltbz8AXdErg1NdSU7EhsIld2)
+## How it works
 
-## Getting Started
+1. **Parent creates a task** (e.g. "Tidy your room") with a LoriCoin reward.
+2. **Child marks it as done** from their own view.
+3. **Parent reviews and approves it.**
+4. **Child receives LoriCoins**, minted on Solana Devnet to their wallet.
 
-First, run the development server:
+## What we built
+
+- **Web2 app:** accounts, roles (parent / child), task creation, completion and approval flow.
+- **Solana layer:** the same flow mirrored on-chain. Approving a task mints LoriCoins (SPL token, 0 decimals) to the child's wallet.
+- **Landing page** explaining the product.
+
+### On-chain details
+
+| | |
+|---|---|
+| Network | Solana **Devnet** |
+| Token | LoriCoin (SPL, 0 decimals) |
+| Mint address | `BKpo4BuLje94dJSWcBmas39J4sVm7kbCrvByqhgCp8Ap` |
+
+You can inspect the token on Solana Explorer (select cluster: Devnet).
+
+## Tech stack
+
+- Next.js (generated and iterated with v0)
+- Supabase (auth and database)
+- Vercel (hosting)
+- Solana web3.js and SPL Token (Devnet)
+
+## Live links
+
+- App: https://v0-apploricoin.vercel.app
+- Landing: https://web-loricoin.vercel.app
+
+## Test access for judges
+
+Use these demo accounts to try the full flow:
+
+- Parent: `PARENT_EMAIL` / `PARENT_PASSWORD`
+- Child: `CHILD_EMAIL` / `CHILD_PASSWORD`
+
+## Run it locally
 
 ```bash
+git clone https://github.com/rbascunan/loricoin.git
+cd loricoin
+npm install
+cp .env.example .env.local   # fill in the variables below
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Environment variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SOLANA_RPC_URL=https://api.devnet.solana.com
+LORICOIN_MINT_ADDRESS=BKpo4BuLje94dJSWcBmas39J4sVm7kbCrvByqhgCp8Ap
+MINT_AUTHORITY_SECRET_KEY=   # server-side only, never committed
+```
 
-## Learn More
+## Scope of this hackathon
 
-To learn more, take a look at the following resources:
+Included: the task, approval and reward flow, on both web2 and Solana Devnet.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+Not included (future work): rewards store where kids spend LoriCoins, NFC ring for physical interaction, mainnet deployment.
+
+## Why us
+
+We are a parent and a 5th grader who already build apps and robotics projects together. LoriCoin is the product we wished existed for our own family, and we learned Solana from scratch to build it.
+
+## Team
+
+- Roberto Bacuñan: product, development
+- Roberto Fernando Bacuñan Garello: co-creator, first user and tester
