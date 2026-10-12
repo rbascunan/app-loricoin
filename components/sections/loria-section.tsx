@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, Sparkles, Lightbulb, PiggyBank, Target, HelpCircle, BookOpen, Loader2 } from "lucide-react"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import { getKnowledgeResponse } from "@/lib/loria-knowledge"
+import { initials } from "@/lib/loricoin/client-utils"
 import Image from "next/image"
 
 const suggestedQuestions = [
@@ -32,10 +33,10 @@ interface Message {
 }
 
 export function LoriaSection() {
-  const { isChildMode, selectedChild, currentUser, addLoriCoins, checkGoldenRule } = useApp()
+  const { profile } = useApp()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const user = isChildMode && selectedChild ? selectedChild : currentUser
+  const user = { name: profile?.name ?? "", avatar: initials(profile?.name) }
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -120,14 +121,7 @@ export function LoriaSection() {
           }
         }
 
-        // Give LoriCoins for completing a lesson
-        if (assistantContent.length > 100 && user) {
-          addLoriCoins(user.id, 30, "Completaste una leccion con LorIA")
-          checkGoldenRule('rule-8', user.id) // Learning rule
-        }
-
-      } catch (error) {
-        console.log("[v0] AI Gateway error, using local fallback:", error)
+      } catch {
         setUseLocalFallback(true)
         
         // Use local fallback
@@ -137,12 +131,6 @@ export function LoriaSection() {
           role: "assistant",
           content: localResponse
         }])
-        
-        // Give LoriCoins for learning
-        if (user) {
-          addLoriCoins(user.id, 30, "Completaste una leccion con LorIA")
-          checkGoldenRule('rule-8', user.id)
-        }
       }
     } else {
       // Use local fallback directly
@@ -154,16 +142,10 @@ export function LoriaSection() {
         role: "assistant",
         content: localResponse
       }])
-      
-      // Give LoriCoins for learning
-      if (user) {
-        addLoriCoins(user.id, 30, "Completaste una leccion con LorIA")
-        checkGoldenRule('rule-8', user.id)
-      }
     }
 
     setIsLoading(false)
-  }, [messages, isLoading, useLocalFallback, addLoriCoins, checkGoldenRule, user])
+  }, [messages, isLoading, useLocalFallback])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -348,21 +330,6 @@ export function LoriaSection() {
                 Sabias que si ahorras $10 cada semana durante un año, tendras mas de $500? El
                 ahorro pequeño pero constante hace grandes diferencias!
               </p>
-            </CardContent>
-          </Card>
-
-          {/* LoriCoins Badge */}
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-primary">+30 LoriCoins</p>
-                  <p className="text-xs text-muted-foreground">por cada leccion completada</p>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>

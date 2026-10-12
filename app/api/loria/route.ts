@@ -1,6 +1,7 @@
 import { stepCountIs, streamText, tool } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
+import { getSessionUserId } from '@/lib/server/http'
 
 // Initialize Groq client (FREE!)
 const groq = createGroq({
@@ -79,6 +80,10 @@ FORMATO:
 - Maximo 200 palabras por respuesta`
 
 export async function POST(req: Request) {
+  if (!(await getSessionUserId())) {
+    return Response.json({ error: 'Tenés que iniciar sesión' }, { status: 401 })
+  }
+
   try {
     const body = await req.json()
     const rawMessages = body?.messages || []

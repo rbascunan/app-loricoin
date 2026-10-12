@@ -1,275 +1,228 @@
 "use client"
 
-import { useState } from "react"
-import { useApp } from "@/lib/app-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
+import { useState, type FormEvent } from "react"
+import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Users, Lock, Mail, Eye, EyeOff, Sparkles, Star } from "lucide-react"
+import { ErrorText } from "@/components/loricoin/task-ui"
+import { useApp } from "@/lib/app-context"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
-import Image from "next/image"
+import { childEmailFor, isValidPin, isValidUsername, normalizeUsername } from "@/lib/loricoin/rules"
 
-export function LoginScreen() {
-  const { login } = useApp()
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
+const sanitizeUsernameInput = (value: string) => normalizeUsername(value).replace(/[^a-z0-9]/g, "").slice(0, 20)
+const sanitizePinInput = (value: string) => value.replace(/\D/g, "").slice(0, 6)
 
-  // Parent form state
-  const [parentEmail, setParentEmail] = useState("")
-  const [parentPassword, setParentPassword] = useState("")
+function translateAuthError(message: string): string {
+  if (/invalid login credentials/i.test(message)) return "Los datos no coinciden. Revisalos e intentá de nuevo."
+  if (/email not confirmed/i.test(message)) return "Todavía no confirmaste tu correo. Revisá tu bandeja de entrada."
+  if (/already registered|already exists/i.test(message)) return "Ya existe una cuenta con ese correo. Ingresá en vez de crear una nueva."
+  if (/password/i.test(message)) return "La contraseña tiene que tener al menos 8 caracteres."
+  if (/rate limit|too many/i.test(message)) return "Demasiados intentos. Esperá unos minutos y probá de nuevo."
+  return "No pudimos completar la operación. Intentá de nuevo."
+}
 
-  // Child form state
-  const [childName, setChildName] = useState("")
-  const [childPin, setChildPin] = useState("")
+function ParentForm() {
+  const { supabase } = useApp()
+  const [mode, setMode] = useState<"login" | "signup">("login")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
 
-  const handleParentLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    setError(null)
+    setInfo(null)
 
+    if (mode === "signup" && !name.trim()) return setError("Ingresá tu nombre.")
+    if (password.length < 8) return setError("La contraseña tiene que tener al menos 8 caracteres.")
+
+    setPending(true)
     try {
-      const success = await login(parentEmail, parentPassword, "parent")
-      if (!success) {
-        setError("Credenciales incorrectas")
+      if (mode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+        if (error) setError(translateAuthError(error.message))
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            data: { name: name.trim() },
+            emailRedirectTo:
+              process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/callback`,
+          },
+        })
+        if (error) setError(translateAuthError(error.message))
+        else if (!data.session) setInfo("Te enviamos un correo para confirmar tu cuenta. Después volvé y entrá.")
       }
-    } catch {
-      setError("Error al iniciar sesion")
     } finally {
-      setIsLoading(false)
+      setPending(false)
     }
-  }
-
-  const handleChildLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-
-    try {
-      const success = await login(childName, childPin, "child")
-      if (!success) {
-        setError("PIN incorrecto")
-      }
-    } catch {
-      setError("Error al iniciar sesion")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleDemoLogin = async (role: "parent" | "child") => {
-    setIsLoading(true)
-    await login("demo@example.com", "demo", role)
-    setIsLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-yellow-300/30 rounded-full blur-xl" />
-      <div className="absolute bottom-20 right-10 w-32 h-32 bg-emerald-300/30 rounded-full blur-xl" />
-      <div className="absolute top-1/4 right-1/4 w-16 h-16 bg-white/20 rounded-full blur-lg" />
-      
-      {/* Floating coins decoration */}
-      <div className="absolute top-20 right-20 animate-bounce">
-        <Star className="w-8 h-8 text-yellow-300/60" />
-      </div>
-      <div className="absolute bottom-32 left-16 animate-bounce delay-300">
-        <Star className="w-6 h-6 text-yellow-300/40" />
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo & Title */}
-        <div className="text-center mb-6">
-          <div className="w-28 h-28 mx-auto mb-4 relative">
-            <div className="absolute inset-0 bg-white/30 rounded-full blur-md" />
-            <Image 
-              src={LORICOIN_IMAGES.coin}
-              alt="LoriCoin" 
-              width={112} 
-              height={112}
-              className="w-full h-full object-contain relative z-10 drop-shadow-lg"
-              unoptimized
-            />
-          </div>
-          <h1 className="text-4xl font-bold text-white drop-shadow-lg">LoriCoin</h1>
-          <p className="text-white/90 mt-2 text-lg">Aprende a manejar tu dinero jugando</p>
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <span className="px-3 py-1 bg-white/20 rounded-full text-white text-sm backdrop-blur-sm">
-              Educacion Financiera
-            </span>
-            <span className="px-3 py-1 bg-yellow-400/30 rounded-full text-white text-sm backdrop-blur-sm">
-              Para Familias
-            </span>
-          </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {mode === "signup" && (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="parent-name">Tu nombre</Label>
+          <Input
+            id="parent-name"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={40}
+            required
+          />
         </div>
-
-        {/* Login Card */}
-        <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-emerald-700 text-xl">Bienvenido a LoriCoin</CardTitle>
-            <CardDescription>Selecciona tu tipo de cuenta para ingresar</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="parent" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 bg-emerald-100 h-12">
-                <TabsTrigger value="parent" className="flex items-center justify-center gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-sm px-2">
-                  <Users className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Padre/Madre</span>
-                </TabsTrigger>
-                <TabsTrigger value="child" className="flex items-center justify-center gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-sm px-2">
-                  <User className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Hijo/a</span>
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Parent Login */}
-              <TabsContent value="parent">
-                <form onSubmit={handleParentLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="parent-email">Correo electronico</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="parent-email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        value={parentEmail}
-                        onChange={(e) => setParentEmail(e.target.value)}
-                        className="pl-10 border-emerald-200 focus:border-emerald-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="parent-password">Contrasena</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="parent-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Tu contrasena"
-                        value={parentPassword}
-                        onChange={(e) => setParentPassword(e.target.value)}
-                        className="pl-10 pr-10 border-emerald-200 focus:border-emerald-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {error && (
-                    <p className="text-sm text-destructive text-center">{error}</p>
-                  )}
-
-                  <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={isLoading}>
-                    {isLoading ? "Ingresando..." : "Ingresar como Padre/Madre"}
-                  </Button>
-
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-emerald-200" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-muted-foreground">o prueba el demo</span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm"
-                    onClick={() => handleDemoLogin("parent")}
-                    disabled={isLoading}
-                  >
-                    <Sparkles className="w-4 h-4 mr-2 shrink-0" />
-                    <span className="truncate">Demo (Anabelia)</span>
-                  </Button>
-                </form>
-              </TabsContent>
-
-              {/* Child Login */}
-              <TabsContent value="child">
-                <form onSubmit={handleChildLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="child-name">Tu nombre</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="child-name"
-                        type="text"
-                        placeholder="Betito"
-                        value={childName}
-                        onChange={(e) => setChildName(e.target.value)}
-                        className="pl-10 border-emerald-200 focus:border-emerald-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="child-pin">PIN secreto (4 digitos)</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="child-pin"
-                        type="password"
-                        placeholder="****"
-                        maxLength={4}
-                        value={childPin}
-                        onChange={(e) => setChildPin(e.target.value.replace(/\D/g, ""))}
-                        className="pl-10 text-center tracking-widest text-lg border-emerald-200 focus:border-emerald-500"
-                      />
-                    </div>
-                  </div>
-
-                  {error && (
-                    <p className="text-sm text-destructive text-center">{error}</p>
-                  )}
-
-                  <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={isLoading}>
-                    {isLoading ? "Ingresando..." : "Ingresar como Hijo/a"}
-                  </Button>
-
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-emerald-200" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-muted-foreground">o prueba el demo</span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm"
-                    onClick={() => handleDemoLogin("child")}
-                    disabled={isLoading}
-                  >
-                    <Sparkles className="w-4 h-4 mr-2 shrink-0" />
-                    <span className="truncate">Demo (Betito)</span>
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* Footer */}
-        <div className="text-center mt-6 space-y-2">
-          <p className="text-white/90 text-sm">
-            Desarrollado por <span className="font-bold">Betito Bascunan</span> gracias a Vercel
-          </p>
-          <p className="text-white/70 text-xs">
-            Hackathon Zero to Agent 2026 | v0 + MCPs
-          </p>
-        </div>
+      )}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="parent-email">Correo electrónico</Label>
+        <Input
+          id="parent-email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
       </div>
-    </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="parent-password">Contraseña</Label>
+        <Input
+          id="parent-password"
+          type="password"
+          autoComplete={mode === "login" ? "current-password" : "new-password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          minLength={8}
+          required
+        />
+      </div>
+      <ErrorText message={error} />
+      {info && (
+        <p role="status" className="text-sm font-medium text-emerald-700">
+          {info}
+        </p>
+      )}
+      <Button type="submit" disabled={pending} className="bg-emerald-600 text-white hover:bg-emerald-700">
+        {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+        {mode === "login" ? "Ingresar" : "Crear cuenta"}
+      </Button>
+      <button
+        type="button"
+        className="text-sm font-medium text-emerald-700 underline-offset-4 hover:underline"
+        onClick={() => {
+          setMode(mode === "login" ? "signup" : "login")
+          setError(null)
+          setInfo(null)
+        }}
+      >
+        {mode === "login" ? "¿No tenés cuenta? Creá una" : "¿Ya tenés cuenta? Ingresá"}
+      </button>
+    </form>
+  )
+}
+
+function ChildForm() {
+  const { supabase } = useApp()
+  const [username, setUsername] = useState("")
+  const [pin, setPin] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    if (!isValidUsername(username)) return setError("El usuario tiene entre 3 y 20 letras o números.")
+    if (!isValidPin(pin)) return setError("El PIN tiene 6 números.")
+
+    setPending(true)
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: childEmailFor(username), password: pin })
+      if (error) {
+        setError(
+          /invalid login credentials/i.test(error.message)
+            ? "Usuario o PIN incorrectos. Si no te acordás, pedile ayuda a tu papá o mamá."
+            : translateAuthError(error.message),
+        )
+      }
+    } finally {
+      setPending(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="child-username">Tu usuario</Label>
+        <Input
+          id="child-username"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          value={username}
+          onChange={(e) => setUsername(sanitizeUsernameInput(e.target.value))}
+          placeholder="ej: betito"
+          required
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="child-pin">Tu PIN de 6 números</Label>
+        <Input
+          id="child-pin"
+          type="password"
+          inputMode="numeric"
+          autoComplete="current-password"
+          value={pin}
+          onChange={(e) => setPin(sanitizePinInput(e.target.value))}
+          className="tracking-[0.5em]"
+          required
+        />
+      </div>
+      <ErrorText message={error} />
+      <Button type="submit" disabled={pending} className="bg-emerald-600 text-white hover:bg-emerald-700">
+        {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+        Entrar
+      </Button>
+      <p className="text-center text-xs text-muted-foreground">
+        Tu usuario y PIN te los da tu papá o mamá desde su cuenta.
+      </p>
+    </form>
+  )
+}
+
+export function LoginScreen() {
+  return (
+    <main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-yellow-50 p-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="items-center text-center">
+          <div className="relative mx-auto h-24 w-24">
+            <Image src={LORICOIN_IMAGES.coin} alt="Lorito de LoriCoin" fill className="object-contain" unoptimized priority />
+          </div>
+          <CardTitle className="text-3xl font-bold text-emerald-700">LoriCoin</CardTitle>
+          <CardDescription>Finanzas para chicos, con la familia</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="parent">
+            <TabsList className="mb-4 grid w-full grid-cols-2">
+              <TabsTrigger value="parent">Padre o madre</TabsTrigger>
+              <TabsTrigger value="child">Hijo o hija</TabsTrigger>
+            </TabsList>
+            <TabsContent value="parent">
+              <ParentForm />
+            </TabsContent>
+            <TabsContent value="child">
+              <ChildForm />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </main>
   )
 }

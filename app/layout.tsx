@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Nunito, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AppProvider } from '@/lib/app-context'
 import './globals.css'
 
 const nunito = Nunito({ 
@@ -46,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="bg-background">
       <body className={`${nunito.variable} ${geistMono.variable} font-sans antialiased`}>
-        {children}
+        <AppProvider>{children}</AppProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

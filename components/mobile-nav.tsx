@@ -1,73 +1,49 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import {
-  LayoutDashboard,
-  Users,
-  ArrowLeftRight,
-  Bot,
-  Users2,
-  Coins,
-  Gift,
-} from "lucide-react"
+import { useApp } from "@/lib/app-context"
+import { getNavItems, type SectionId } from "@/lib/navigation"
 
 interface MobileNavProps {
-  currentSection: string
-  onSectionChange: (section: string) => void
+  activeSection: SectionId
+  onSectionChange: (section: SectionId) => void
 }
 
-const navItems = [
-  { id: "dashboard", label: "Inicio", icon: LayoutDashboard },
-  { id: "family", label: "Familia", icon: Users },
-  { id: "movements", label: "Movim.", icon: ArrowLeftRight },
-  { id: "loria", label: "LorIA", icon: Bot },
-  { id: "community", label: "Comunidad", icon: Users2 },
-  { id: "loricoins", label: "Coins", icon: Coins },
-  { id: "premios", label: "Premios", icon: Gift },
-]
-
-export function MobileNav({ currentSection, onSectionChange }: MobileNavProps) {
-  const handleSectionChange = (sectionId: string) => {
-    onSectionChange(sectionId)
-    // Scroll to top when changing section
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }
+export function MobileNav({ activeSection, onSectionChange }: MobileNavProps) {
+  const { isChildMode } = useApp()
+  const items = getNavItems(isChildMode).filter((item) => item.mobile)
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 lg:hidden shadow-lg safe-area-bottom">
-      <div className="flex items-center justify-between px-1 py-1.5">
-        {navItems.map((item) => {
-          const isActive = currentSection === item.id
+    <nav
+      aria-label="Principal"
+      className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+    >
+      <ul className="flex">
+        {items.map((item) => {
           const Icon = item.icon
+          const active = item.id === activeSection
           return (
-            <button
-              key={item.id}
-              onClick={() => handleSectionChange(item.id)}
-              className={cn(
-                "relative flex flex-col items-center gap-0.5 px-1.5 py-1.5 rounded-lg transition-all flex-1 min-w-0",
-                isActive
-                  ? "text-emerald-600 bg-emerald-50"
-                  : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
-              )}
-            >
-              <Icon className={cn("w-5 h-5 shrink-0", isActive && "text-emerald-600")} />
-              <span className={cn(
-                "text-[9px] font-medium truncate w-full text-center",
-                isActive && "font-semibold text-emerald-600"
-              )}>{item.label}</span>
-              {item.id === "premios" && (
-                <span className="absolute top-0.5 right-1 w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-              )}
-            </button>
+            <li key={item.id} className="flex-1">
+              <button
+                type="button"
+                onClick={() => onSectionChange(item.id)}
+                aria-current={active ? "page" : undefined}
+                aria-label={item.comingSoon ? `${item.label}, próximamente` : item.label}
+                className={cn(
+                  "relative flex w-full flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
+                  active ? "text-emerald-700" : "text-muted-foreground",
+                )}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                <span>{item.shortLabel}</span>
+                {item.comingSoon && (
+                  <span className="absolute right-2 top-1 h-2 w-2 rounded-full bg-yellow-400" aria-hidden="true" />
+                )}
+              </button>
+            </li>
           )
         })}
-      </div>
-      {/* Creator credit for mobile */}
-      <div className="text-center pb-1 pt-0.5 border-t border-gray-100">
-        <p className="text-[7px] text-muted-foreground/60">
-          Desarrollado por Betito Bascunan gracias a Vercel
-        </p>
-      </div>
+      </ul>
     </nav>
   )
 }

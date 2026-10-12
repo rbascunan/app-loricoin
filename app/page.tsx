@@ -1,149 +1,118 @@
 "use client"
 
 import { useState } from "react"
-import { AppProvider, useApp } from "@/lib/app-context"
+import { Bell, Loader2, LogOut } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { LoginScreen } from "@/components/login-screen"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { MobileNav } from "@/components/mobile-nav"
+import { ComingSoonSection } from "@/components/coming-soon"
+import { CoinAmount } from "@/components/loricoin/task-ui"
 import { DashboardSection } from "@/components/sections/dashboard-section"
+import { TasksSection } from "@/components/sections/tasks-section"
 import { FamilySection } from "@/components/sections/family-section"
 import { MovementsSection } from "@/components/sections/movements-section"
 import { LoriaSection } from "@/components/sections/loria-section"
-import { CommunitySection } from "@/components/sections/community-section"
-import { LoricoinsSection } from "@/components/sections/loricoins-section"
-import { PremiosSection } from "@/components/sections/premios-section"
-import { LoginScreen } from "@/components/login-screen"
-import { NotificationsPanel } from "@/components/notifications-panel"
-import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
-import Image from "next/image"
-import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { LoriCoinsSection } from "@/components/sections/loricoins-section"
+import { useApp } from "@/lib/app-context"
+import type { SectionId } from "@/lib/navigation"
 
-function AppContent() {
-  const { isLoggedIn, logout, currentUser, isChildMode } = useApp()
-  const [currentSection, setCurrentSection] = useState("dashboard")
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+function FullScreenLoader() {
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-yellow-50">
+      <Loader2 className="h-8 w-8 animate-spin text-emerald-600" aria-label="Cargando" />
+    </div>
+  )
+}
 
-  // Show login screen if not logged in
-  if (!isLoggedIn) {
-    return <LoginScreen />
+function DataError({ message, onRetry, onSignOut }: { message: string; onRetry: () => void; onSignOut: () => void }) {
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-yellow-50 p-4">
+      <Card className="w-full max-w-sm">
+        <CardContent className="flex flex-col gap-4 p-6 text-center">
+          <p role="alert" className="font-medium text-foreground">
+            {message}
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button onClick={onRetry} className="bg-emerald-600 text-white hover:bg-emerald-700">
+              Reintentar
+            </Button>
+            <Button variant="outline" onClick={onSignOut}>
+              Salir
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function Home() {
+  const { authStatus, profile, children, isChildMode, dataError, refresh, signOut } = useApp()
+  const [activeSection, setActiveSection] = useState<SectionId>("dashboard")
+
+  if (authStatus === "loading") return <FullScreenLoader />
+  if (authStatus === "signedOut") return <LoginScreen />
+  if (!profile) {
+    return dataError ? <DataError message={dataError} onRetry={refresh} onSignOut={signOut} /> : <FullScreenLoader />
   }
 
+  const headerCoins = isChildMode ? profile.lori_coins : children.reduce((sum, c) => sum + c.lori_coins, 0)
+
   const renderSection = () => {
-    switch (currentSection) {
-      case "dashboard":
-        return <DashboardSection />
+    switch (activeSection) {
+      case "tasks":
+        return <TasksSection onNavigate={setActiveSection} />
       case "family":
         return <FamilySection />
       case "movements":
         return <MovementsSection />
       case "loria":
         return <LoriaSection />
-      case "community":
-        return <CommunitySection />
       case "loricoins":
-        return <LoricoinsSection />
+        return <LoriCoinsSection />
       case "premios":
-        return <PremiosSection />
+        return <ComingSoonSection featureId="premios" />
+      case "ranking":
+        return <ComingSoonSection featureId="ranking" />
       default:
-        return <DashboardSection />
+        return <DashboardSection onNavigate={setActiveSection} />
     }
   }
 
   return (
-    <div className="flex min-h-screen min-h-dvh bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block shrink-0 sticky top-0 h-screen">
-        <SidebarNav
-          currentSection={currentSection}
-          onSectionChange={setCurrentSection}
-          collapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-        />
-      </div>
+    <div className="flex min-h-dvh bg-gradient-to-br from-emerald-50/60 via-background to-yellow-50/60">
+      <SidebarNav activeSection={activeSection} onSectionChange={setActiveSection} />
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar with Notifications */}
-        <header className="sticky top-0 z-40 flex items-center justify-between px-4 md:px-6 lg:px-8 py-3 border-b bg-white/80 backdrop-blur-md shadow-sm">
-          <div className="flex items-center gap-3">
-            {/* Mobile Logo */}
-            <div className="lg:hidden w-10 h-10 rounded-full overflow-hidden">
-              <Image 
-                src={LORICOIN_IMAGES.coin}
-                alt="LoriCoin" 
-                width={40} 
-                height={40}
-                className="w-full h-full object-cover"
-                unoptimized
-              />
-            </div>
-            <Avatar className="w-10 h-10 border-2 border-emerald-400 shadow-md">
-              {currentUser.avatarUrl && (
-                <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} className="object-cover" />
-              )}
-              <AvatarFallback className="bg-gradient-to-br from-emerald-400 to-teal-500 text-white font-bold">
-                {currentUser.avatar}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-sm font-semibold text-gray-800">{currentUser.name}</p>
-              <p className="text-xs text-emerald-600 font-medium">
-                {isChildMode ? "Modo Estudiante" : "Modo Padre/Madre"}
-              </p>
-            </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b bg-background/80 px-4 py-3 backdrop-blur md:px-6">
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate font-semibold text-foreground">{profile.name}</span>
+            <span className="text-xs text-muted-foreground">{isChildMode ? "Hijo o hija" : "Padre o madre"}</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* LoriCoins Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md">
-              <Image 
-                src={LORICOIN_IMAGES.coin}
-                alt="LoriCoins" 
-                width={24} 
-                height={24}
-                className="w-6 h-6 rounded-full"
-                unoptimized
-              />
-              <span className="text-sm font-bold">{currentUser.loriCoins}</span>
-            </div>
-            
-            {/* Notifications */}
-            <NotificationsPanel />
-            
-            {/* Logout */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={logout} 
-              title="Cerrar sesion"
-              className="hover:bg-red-50 hover:text-red-500"
+            <span
+              className="flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1"
+              title={isChildMode ? "Tus LoriCoins" : "LoriCoins de tus hijos"}
             >
-              <LogOut className="w-5 h-5" />
+              <CoinAmount amount={headerCoins} />
+            </span>
+            <Button variant="ghost" size="icon" disabled title="Alertas: próximamente" aria-label="Alertas, próximamente">
+              <Bell className="h-5 w-5" aria-hidden="true" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión">
+              <LogOut className="h-5 w-5" aria-hidden="true" />
             </Button>
           </div>
         </header>
 
-        {/* Content Area - full scrollable */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 md:p-6 lg:p-8 pb-32 lg:pb-8 min-h-full">
-            {renderSection()}
-          </div>
-        </div>
-      </main>
+        <main className={`flex-1 p-4 pb-24 md:p-6 md:pb-6 ${activeSection === "loria" ? "flex h-[calc(100dvh-4rem)] flex-col" : ""}`}>
+          {renderSection()}
+        </main>
+      </div>
 
-      {/* Mobile Navigation */}
-      <MobileNav
-        currentSection={currentSection}
-        onSectionChange={setCurrentSection}
-      />
+      <MobileNav activeSection={activeSection} onSectionChange={setActiveSection} />
     </div>
-  )
-}
-
-export default function Page() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
   )
 }
