@@ -21,6 +21,8 @@ const sanitizePinInput = (value: string) => value.replace(/\D/g, "").slice(0, 6)
 function translateAuthError(message: string): string {
   if (/invalid login credentials/i.test(message)) return "Los datos no coinciden. Revisalos e intentá de nuevo."
   if (/email not confirmed/i.test(message)) return "Todavía no confirmaste tu correo. Revisá tu bandeja de entrada."
+  if (/signups? not allowed|signup.*disabled/i.test(message))
+    return "El registro de cuentas nuevas está desactivado. Pedile al administrador que lo active."
   if (/already registered|already exists/i.test(message)) return "Ya existe una cuenta con ese correo. Ingresá en vez de crear una nueva."
   if (/password/i.test(message)) return "La contraseña tiene que tener al menos 8 caracteres."
   if (/rate limit|too many/i.test(message)) return "Demasiados intentos. Esperá unos minutos y probá de nuevo."
