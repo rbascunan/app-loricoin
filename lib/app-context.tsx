@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import useSWR from "swr"
 import { createClient } from "@/lib/supabase/client"
-import type { ChildSummary, MeResponse, Profile, Task } from "@/lib/loricoin/types"
+import type { ChildSummary, MeResponse, Penalty, Profile, Task } from "@/lib/loricoin/types"
 
 type AuthStatus = "loading" | "signedOut" | "signedIn"
 
@@ -29,6 +29,7 @@ interface AppContextValue {
   profile: Profile | null
   children: ChildSummary[]
   tasks: Task[]
+  penalties: Penalty[]
   isChildMode: boolean
   isLoadingData: boolean
   dataError: string | null
@@ -74,6 +75,7 @@ export function AppProvider({ children: content }: { children: ReactNode }) {
     profile: data?.profile ?? null,
     children: data?.children ?? [],
     tasks: data?.tasks ?? [],
+    penalties: data?.penalties ?? [],
     isChildMode: data?.profile.role === "child",
     isLoadingData: isLoading,
     dataError: error ? (error as Error).message : null,

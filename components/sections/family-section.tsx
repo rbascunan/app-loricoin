@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CoinAmount, ErrorText } from "@/components/loricoin/task-ui"
+import { PenaltyForm } from "@/components/loricoin/penalty-form"
 import { useApp } from "@/lib/app-context"
 import { initials, postJson } from "@/lib/loricoin/client-utils"
 import { LIMITS, isValidPin, isValidUsername, normalizeUsername } from "@/lib/loricoin/rules"
@@ -181,6 +182,7 @@ export function FamilySection() {
           </div>
         )}
       </section>
+      <PenaltyForm />
       <CreateChildForm />
     </div>
   )

@@ -5,13 +5,41 @@ import { CoinAmount, EmptyState } from "@/components/loricoin/task-ui"
 import { useApp } from "@/lib/app-context"
 import { formatDate } from "@/lib/loricoin/client-utils"
 
-export function MovementsSection() {
-  const { tasks, children, isChildMode } = useApp()
+interface Movement {
+  id: string
+  title: string
+  childId: string
+  date: string
+  amount: number
+  kind: "pago" | "descuento"
+}
 
-  const payments = tasks
-    .filter((t) => t.status === "pagada")
-    .sort((a, b) => (b.resolved_at ?? "").localeCompare(a.resolved_at ?? ""))
-  const total = payments.reduce((sum, t) => sum + t.reward, 0)
+export function MovementsSection() {
+  const { tasks, penalties, children, isChildMode } = useApp()
+
+  const movements: Movement[] = [
+    ...tasks
+      .filter((t) => t.status === "pagada")
+      .map((t) => ({
+        id: `t-${t.id}`,
+        title: t.title,
+        childId: t.child_id,
+        date: t.resolved_at ?? t.created_at,
+        amount: t.reward,
+        kind: "pago" as const,
+      })),
+    ...penalties.map((p) => ({
+      id: `p-${p.id}`,
+      title: p.reason,
+      childId: p.child_id,
+      date: p.created_at,
+      amount: p.amount,
+      kind: "descuento" as const,
+    })),
+  ].sort((a, b) => b.date.localeCompare(a.date))
+
+  const earned = movements.filter((m) => m.kind === "pago").reduce((s, m) => s + m.amount, 0)
+  const deducted = movements.filter((m) => m.kind === "descuento").reduce((s, m) => s + m.amount, 0)
   const childName = (id: string) => children.find((c) => c.id === id)?.name ?? ""
 
   return (
@@ -19,37 +47,52 @@ export function MovementsSection() {
       <header>
         <h1 className="text-2xl font-bold text-foreground">Movimientos</h1>
         <p className="text-muted-foreground">
-          {isChildMode ? "Las LoriCoins que ganaste con tus tareas." : "Las LoriCoins que pagaste por tareas aprobadas."}
+          {isChildMode
+            ? "Las LoriCoins que ganaste con tus tareas y los descuentos que te hicieron."
+            : "Los pagos por tareas aprobadas y los descuentos que hiciste."}
         </p>
       </header>
 
-      <Card>
-        <CardContent className="flex items-center justify-between gap-4 p-5">
-          <span className="text-muted-foreground">{isChildMode ? "Total ganado" : "Total pagado"}</span>
-          <CoinAmount amount={total} className="text-2xl" />
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card>
+          <CardContent className="flex items-center justify-between gap-4 p-5">
+            <span className="text-muted-foreground">{isChildMode ? "Total ganado" : "Total pagado"}</span>
+            <CoinAmount amount={earned} className="text-2xl" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between gap-4 p-5">
+            <span className="text-muted-foreground">Total descontado</span>
+            <span className="flex items-center gap-1 text-red-700">
+              -<CoinAmount amount={deducted} className="text-2xl" />
+            </span>
+          </CardContent>
+        </Card>
+      </div>
 
-      {payments.length === 0 ? (
+      {movements.length === 0 ? (
         <EmptyState
           title="Todavía no hay movimientos"
-          description="Cuando se apruebe una tarea terminada, el pago aparece acá."
+          description="Cuando se apruebe una tarea o se haga un descuento, aparece acá."
         />
       ) : (
         <Card>
           <CardContent className="p-0">
             <ul className="divide-y">
-              {payments.map((task) => (
-                <li key={task.id} className="flex items-center justify-between gap-4 p-4">
+              {movements.map((m) => (
+                <li key={m.id} className="flex items-center justify-between gap-4 p-4">
                   <div className="flex min-w-0 flex-col">
-                    <span className="truncate font-medium text-foreground">{task.title}</span>
+                    <span className="truncate font-medium text-foreground">{m.title}</span>
                     <span className="text-xs text-muted-foreground">
-                      {!isChildMode && `${childName(task.child_id)} · `}
-                      {formatDate(task.resolved_at)}
+                      {m.kind === "descuento" ? "Descuento" : "Tarea aprobada"}
+                      {!isChildMode && ` · ${childName(m.childId)}`} · {formatDate(m.date)}
                     </span>
                   </div>
-                  <span className="flex items-center gap-1 text-emerald-700">
-                    +<CoinAmount amount={task.reward} />
+                  <span
+                    className={`flex items-center gap-1 ${m.kind === "descuento" ? "text-red-700" : "text-emerald-700"}`}
+                  >
+                    {m.kind === "descuento" ? "-" : "+"}
+                    <CoinAmount amount={m.amount} />
                   </span>
                 </li>
               ))}

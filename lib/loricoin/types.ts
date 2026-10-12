@@ -32,8 +32,18 @@ export interface Task {
   resolved_at: string | null
 }
 
+export interface Penalty {
+  id: string
+  parent_id: string
+  child_id: string
+  reason: string
+  amount: number
+  created_at: string
+}
+
 export interface MeResponse {
   profile: Profile
   children: ChildSummary[]
   tasks: Task[]
+  penalties: Penalty[]
 }

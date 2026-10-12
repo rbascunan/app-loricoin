@@ -1,10 +1,11 @@
 import "server-only"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { ACTIVE_TASK_STATUSES } from "@/lib/loricoin/rules"
-import type { ChildSummary, Profile, Task } from "@/lib/loricoin/types"
+import type { ChildSummary, Penalty, Profile, Task } from "@/lib/loricoin/types"
 import type { TaskRepo } from "./task-service"
 
 const PROFILE_COLUMNS = "id, name, role, parent_id, username, lori_coins"
+const PENALTY_COLUMNS = "id, parent_id, child_id, reason, amount, created_at"
 const TASK_COLUMNS =
   "id, parent_id, child_id, title, description, reward, status, rejection_note, created_at, done_at, resolved_at"
 
@@ -18,6 +19,13 @@ export function createSupabaseRepo() {
   const repo: TaskRepo & {
     listChildren(parentId: string): Promise<ChildSummary[]>
     listTasks(field: "parent_id" | "child_id", id: string): Promise<Task[]>
+    listPenalties(field: "parent_id" | "child_id", id: string): Promise<Penalty[]>
+    applyPenalty(
+      parentId: string,
+      childId: string,
+      reason: string,
+      amount: number,
+    ): Promise<{ ok: true; amount: number; balance: number } | { ok: false; reason: "not_found" | "no_balance" }>
   } = {
     async getProfile(id) {
       const { data, error } = await db.from("profiles").select(PROFILE_COLUMNS).eq("id", id).maybeSingle()
@@ -113,6 +121,33 @@ export function createSupabaseRepo() {
         .order("created_at", { ascending: true })
       if (error) throw error
       return (data ?? []).map((c) => ({ ...c, lori_coins: c.lori_coins ?? 0 })) as ChildSummary[]
+    },
+
+    async listPenalties(field, id) {
+      const { data, error } = await db
+        .from("penalties")
+        .select(PENALTY_COLUMNS)
+        .eq(field, id)
+        .order("created_at", { ascending: false })
+        .limit(200)
+      if (error) throw error
+      return (data ?? []) as Penalty[]
+    },
+
+    async applyPenalty(parentId, childId, reason, amount) {
+      const { data, error } = await db.rpc("apply_penalty", {
+        p_parent: parentId,
+        p_child: childId,
+        p_reason: reason,
+        p_amount: amount,
+      })
+      if (error) {
+        if (/Hijo no encontrado/.test(error.message)) return { ok: false, reason: "not_found" }
+        if (/Sin saldo/.test(error.message)) return { ok: false, reason: "no_balance" }
+        throw error
+      }
+      const row = (Array.isArray(data) ? data[0] : data) as { amount: number; balance: number }
+      return { ok: true, amount: row.amount, balance: row.balance }
     },
 
     async listTasks(field, id) {

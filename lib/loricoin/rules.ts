@@ -8,6 +8,7 @@ export const MIN_REWARD = 1
 export const MAX_REWARD = 50
 export const MAX_ACTIVE_TASKS_PER_CHILD = 20
 export const ACTIVE_TASK_STATUSES: TaskStatus[] = ["pendiente", "terminada"]
+export const PENALTY_LIMITS = { reason: 120, maxAmount: 50 } as const
 
 export const LIMITS = {
   childName: 40,
