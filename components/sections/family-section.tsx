@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CoinAmount, ErrorText } from "@/components/loricoin/task-ui"
 import { PenaltyForm } from "@/components/loricoin/penalty-form"
+import { PrizeNotifications } from "@/components/loricoin/prize-notifications"
 import { useApp } from "@/lib/app-context"
 import { initials, postJson } from "@/lib/loricoin/client-utils"
 import { LIMITS, isValidPin, isValidUsername, normalizeUsername } from "@/lib/loricoin/rules"
@@ -147,6 +148,7 @@ export function FamilySection() {
           <p className="text-muted-foreground">Tus datos en LoriCoin.</p>
         </header>
         <PersonCard name={profile?.name ?? ""} username={profile?.username ?? null} coins={profile?.lori_coins ?? 0} />
+        <PrizeNotifications />
       </div>
     )
   }

@@ -1,10 +1,15 @@
 import "server-only"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { ACTIVE_TASK_STATUSES } from "@/lib/loricoin/rules"
-import type { ChildSummary, Penalty, Profile, Task } from "@/lib/loricoin/types"
+import type { ChildSummary, Penalty, Profile, Redemption, Reward, Task } from "@/lib/loricoin/types"
 import { createChildWallet } from "@/lib/solana"
 import { decryptSecret, encryptSecret } from "./wallet-crypto"
 import type { TaskRepo } from "./task-service"
+import type { StoreRepo } from "./store-service"
+
+const REWARD_COLUMNS = "id, name, description, category, price, stock, image_url"
+const REDEMPTION_COLUMNS =
+  "id, reward_id, child_id, reward_name, reward_image, price, status, tx_signature, created_at, redeemed_at, delivered_at"
 
 const PROFILE_COLUMNS = "id, name, role, parent_id, username, lori_coins, wallet_address"
 const PENALTY_COLUMNS = "id, parent_id, child_id, reason, amount, created_at, tx_signature"
@@ -23,7 +28,10 @@ const toTask = (row: TaskRow): Task => ({
 export function createSupabaseRepo() {
   const db = createAdminClient()
 
-  const repo: TaskRepo & {
+  const repo: TaskRepo &
+    StoreRepo & {
+    listRewards(): Promise<Reward[]>
+    listRedemptions(field: "parent_id" | "child_id", id: string): Promise<Redemption[]>
     listChildren(parentId: string): Promise<ChildSummary[]>
     listTasks(field: "parent_id" | "child_id", id: string): Promise<Task[]>
     listPenalties(field: "parent_id" | "child_id", id: string): Promise<Penalty[]>
@@ -213,6 +221,70 @@ export function createSupabaseRepo() {
         .limit(200)
       if (error) throw error
       return (data ?? []) as Penalty[]
+    },
+
+    async listRewards() {
+      const { data, error } = await db
+        .from("rewards")
+        .select(REWARD_COLUMNS)
+        .eq("active", true)
+        .order("sort_order", { ascending: true })
+      if (error) throw error
+      return (data ?? []) as Reward[]
+    },
+
+    async getReward(id) {
+      const { data, error } = await db.from("rewards").select(REWARD_COLUMNS).eq("id", id).eq("active", true).maybeSingle()
+      if (error) throw error
+      return (data as Reward | null) ?? null
+    },
+
+    async reserveReward(childId, rewardId) {
+      const { data, error } = await db.rpc("reserve_reward", { p_child: childId, p_reward: rewardId })
+      if (error) {
+        if (error.code === "23505" || error.message.includes("busy")) return { ok: false, reason: "busy" }
+        if (error.message.includes("out_of_stock")) return { ok: false, reason: "out_of_stock" }
+        if (error.message.includes("not_found")) return { ok: false, reason: "not_found" }
+        if (error.message.includes("not_child")) return { ok: false, reason: "not_child" }
+        throw error
+      }
+      const row = (Array.isArray(data) ? data[0] : data) as { redemption_id: string; price: number }
+      return { ok: true, redemptionId: row.redemption_id, price: row.price }
+    },
+
+    async confirmRedemption(redemptionId, signature) {
+      const { error } = await db.rpc("confirm_redemption", { p_redemption: redemptionId, p_signature: signature })
+      if (error) throw error
+    },
+
+    async cancelRedemption(redemptionId) {
+      const { error } = await db.rpc("cancel_redemption", { p_redemption: redemptionId })
+      if (error) console.error("[store] cancel failed", error.code, error.message)
+    },
+
+    async markRedemptionDelivered(redemptionId, parentId) {
+      const { data, error } = await db
+        .from("reward_redemptions")
+        .update({ status: "entregado", delivered_at: new Date().toISOString() })
+        .eq("id", redemptionId)
+        .eq("parent_id", parentId)
+        .eq("status", "canjeado")
+        .select("id")
+        .maybeSingle()
+      if (error) throw error
+      return data !== null
+    },
+
+    async listRedemptions(field, id) {
+      const { data, error } = await db
+        .from("reward_redemptions")
+        .select(REDEMPTION_COLUMNS)
+        .eq(field, id)
+        .in("status", ["canjeado", "entregado"])
+        .order("created_at", { ascending: false })
+        .limit(200)
+      if (error) throw error
+      return (data ?? []) as Redemption[]
     },
 
     async listTasks(field, id) {

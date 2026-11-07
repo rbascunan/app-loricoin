@@ -16,6 +16,7 @@ import { FamilySection } from "@/components/sections/family-section"
 import { MovementsSection } from "@/components/sections/movements-section"
 import { LoriaSection } from "@/components/sections/loria-section"
 import { LoriCoinsSection } from "@/components/sections/loricoins-section"
+import { PremiosSection } from "@/components/sections/premios-section"
 import { useApp } from "@/lib/app-context"
 import type { SectionId } from "@/lib/navigation"
 
@@ -50,7 +51,7 @@ function DataError({ message, onRetry, onSignOut }: { message: string; onRetry: 
 }
 
 export default function Home() {
-  const { authStatus, profile, children, isChildMode, dataError, refresh, signOut } = useApp()
+  const { authStatus, profile, children, redemptions, isChildMode, dataError, refresh, signOut } = useApp()
   const [activeSection, setActiveSection] = useState<SectionId>("dashboard")
 
   if (authStatus === "loading") return <FullScreenLoader />
@@ -60,6 +61,7 @@ export default function Home() {
   }
 
   const headerCoins = isChildMode ? profile.lori_coins : children.reduce((sum, c) => sum + c.lori_coins, 0)
+  const pendingPrizes = redemptions.filter((r) => r.status === "canjeado").length
 
   const renderSection = () => {
     switch (activeSection) {
@@ -72,9 +74,9 @@ export default function Home() {
       case "loria":
         return <LoriaSection />
       case "loricoins":
-        return <LoriCoinsSection />
+        return <LoriCoinsSection onGoToStore={() => setActiveSection("premios")} />
       case "premios":
-        return <ComingSoonSection featureId="premios" />
+        return <PremiosSection />
       case "ranking":
         return <ComingSoonSection featureId="ranking" />
       default:
@@ -99,8 +101,20 @@ export default function Home() {
             >
               <CoinAmount amount={headerCoins} />
             </span>
-            <Button variant="ghost" size="icon" disabled title="Alertas: próximamente" aria-label="Alertas, próximamente">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => setActiveSection("family")}
+              title="Notificaciones"
+              aria-label={pendingPrizes > 0 ? `Notificaciones, ${pendingPrizes} premios por entregar` : "Notificaciones"}
+            >
               <Bell className="h-5 w-5" aria-hidden="true" />
+              {pendingPrizes > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                  {pendingPrizes}
+                </span>
+              )}
             </Button>
             <Button variant="ghost" size="icon" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión">
               <LogOut className="h-5 w-5" aria-hidden="true" />

@@ -5,10 +5,11 @@ import { Blocks, ListChecks } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChainFallbackNotice, WalletAddress } from "@/components/loricoin/solana-ui"
 import { CoinAmount } from "@/components/loricoin/task-ui"
+import { CoinUses } from "@/components/loricoin/coin-uses"
 import { useApp } from "@/lib/app-context"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 
-export function LoriCoinsSection() {
+export function LoriCoinsSection({ onGoToStore }: { onGoToStore?: () => void }) {
   const { isChildMode, profile, children, wallet, balanceOf } = useApp()
   const addressOf = (childId: string | undefined) =>
     wallet?.balances.find((b) => b.childId === childId)?.address ?? null
@@ -66,6 +67,8 @@ export function LoriCoinsSection() {
       </Card>
 
       <ChainFallbackNotice show={wallet !== null && !wallet.chainOk} />
+
+      <CoinUses onGoToStore={onGoToStore} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
