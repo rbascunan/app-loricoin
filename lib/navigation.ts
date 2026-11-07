@@ -41,7 +41,7 @@ export function getNavItems(isChild: boolean): NavItem[] {
     { id: "movements", label: "Movimientos", shortLabel: "Movim.", icon: ArrowRightLeft, mobile: true },
     { id: "loria", label: "LorIA", shortLabel: "LorIA", icon: Bot, ai: true, mobile: true },
     { id: "loricoins", label: "LoriCoins", shortLabel: "Coins", icon: Coins, mobile: true },
-    { id: "premios", label: "Premios", shortLabel: "Premios", icon: Gift, comingSoon: true, mobile: true },
+    { id: "premios", label: "Tienda", shortLabel: "Tienda", icon: Gift, mobile: true },
     { id: "ranking", label: "Ranking", shortLabel: "Ranking", icon: Trophy, comingSoon: true },
   ]
 }

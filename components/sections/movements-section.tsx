@@ -1,6 +1,7 @@
 "use client"
 
-import { ExternalLink } from "lucide-react"
+import Image from "next/image"
+import { ExternalLink, Gift } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { explorerTxUrl } from "@/components/loricoin/solana-ui"
 import { CoinAmount, EmptyState } from "@/components/loricoin/task-ui"
@@ -14,11 +15,13 @@ interface Movement {
   date: string
   amount: number
   signature: string | null
-  kind: "pago" | "descuento"
+  kind: "pago" | "descuento" | "canje"
+  image?: string | null
+  delivered?: boolean
 }
 
 export function MovementsSection() {
-  const { tasks, penalties, children, isChildMode } = useApp()
+  const { tasks, penalties, redemptions, children, isChildMode } = useApp()
 
   const movements: Movement[] = [
     ...tasks
@@ -41,10 +44,24 @@ export function MovementsSection() {
       signature: p.tx_signature,
       kind: "descuento" as const,
     })),
+    ...redemptions.map((r) => ({
+      id: `r-${r.id}`,
+      title: r.reward_name,
+      childId: r.child_id,
+      date: r.redeemed_at ?? r.created_at,
+      amount: r.price,
+      signature: r.tx_signature,
+      kind: "canje" as const,
+      image: r.reward_image,
+      delivered: r.status === "entregado",
+    })),
   ].sort((a, b) => b.date.localeCompare(a.date))
 
   const earned = movements.filter((m) => m.kind === "pago").reduce((s, m) => s + m.amount, 0)
   const deducted = movements.filter((m) => m.kind === "descuento").reduce((s, m) => s + m.amount, 0)
+  const redeemed = movements.filter((m) => m.kind === "canje").reduce((s, m) => s + m.amount, 0)
+  const kindLabel = (m: Movement) =>
+    m.kind === "descuento" ? "Descuento" : m.kind === "canje" ? (m.delivered ? "Premio entregado" : "Premio canjeado") : "Tarea aprobada"
   const childName = (id: string) => children.find((c) => c.id === id)?.name ?? ""
 
   return (
@@ -53,12 +70,12 @@ export function MovementsSection() {
         <h1 className="text-2xl font-bold text-foreground">Movimientos</h1>
         <p className="text-muted-foreground">
           {isChildMode
-            ? "Las LoriCoins que ganaste con tus tareas y los descuentos que te hicieron."
-            : "Los pagos por tareas aprobadas y los descuentos que hiciste."}
+            ? "Las LoriCoins que ganaste, los descuentos y los premios que canjeaste."
+            : "Pagos por tareas, descuentos y premios canjeados por tus hijos."}
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="flex items-center justify-between gap-4 p-5">
             <span className="text-muted-foreground">{isChildMode ? "Total ganado" : "Total pagado"}</span>
@@ -70,6 +87,14 @@ export function MovementsSection() {
             <span className="text-muted-foreground">Total descontado</span>
             <span className="flex items-center gap-1 text-red-700">
               -<CoinAmount amount={deducted} className="text-2xl" />
+            </span>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between gap-4 p-5">
+            <span className="text-muted-foreground">En premios</span>
+            <span className="flex items-center gap-1 text-violet-700">
+              -<CoinAmount amount={redeemed} className="text-2xl" />
             </span>
           </CardContent>
         </Card>
@@ -86,10 +111,19 @@ export function MovementsSection() {
             <ul className="divide-y">
               {movements.map((m) => (
                 <li key={m.id} className="flex items-center justify-between gap-4 p-4">
-                  <div className="flex min-w-0 flex-col">
+                  {m.kind === "canje" && (
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-violet-100">
+                      {m.image ? (
+                        <Image src={m.image} alt="" fill className="object-cover" unoptimized />
+                      ) : (
+                        <Gift className="absolute inset-0 m-auto h-5 w-5 text-violet-700" aria-hidden="true" />
+                      )}
+                    </div>
+                  )}
+                  <div className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate font-medium text-foreground">{m.title}</span>
                     <span className="text-xs text-muted-foreground">
-                      {m.kind === "descuento" ? "Descuento" : "Tarea aprobada"}
+                      {kindLabel(m)}
                       {!isChildMode && ` · ${childName(m.childId)}`} · {formatDate(m.date)}
                     </span>
                     {m.signature && (
@@ -106,9 +140,11 @@ export function MovementsSection() {
                     )}
                   </div>
                   <span
-                    className={`flex items-center gap-1 ${m.kind === "descuento" ? "text-red-700" : "text-emerald-700"}`}
+                    className={`flex items-center gap-1 ${
+                      m.kind === "descuento" ? "text-red-700" : m.kind === "canje" ? "text-violet-700" : "text-emerald-700"
+                    }`}
                   >
-                    {m.kind === "descuento" ? "-" : "+"}
+                    {m.kind === "pago" ? "+" : "-"}
                     <CoinAmount amount={m.amount} />
                   </span>
                 </li>

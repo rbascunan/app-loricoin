@@ -12,13 +12,14 @@ export async function GET() {
     if (!profile) return jsonError(404, "No encontramos tu perfil")
 
     const field = profile.role === "parent" ? "parent_id" : "child_id"
-    const [children, tasks, penalties] = await Promise.all([
+    const [children, tasks, penalties, redemptions] = await Promise.all([
       profile.role === "parent" ? repo.listChildren(profile.id) : Promise.resolve([]),
       repo.listTasks(field, profile.id),
       repo.listPenalties(field, profile.id),
+      repo.listRedemptions(field, profile.id),
     ])
 
-    const body: MeResponse = { profile, children, tasks, penalties }
+    const body: MeResponse = { profile, children, tasks, penalties, redemptions }
     return Response.json(body, { headers: { "Cache-Control": "no-store" } })
   })
 }

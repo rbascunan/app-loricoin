@@ -1,11 +1,11 @@
 import Image from "next/image"
-import { Bell, Gift, Nfc, PiggyBank, Send, Trophy, type LucideIcon } from "lucide-react"
+import { Bell, Nfc, PiggyBank, Send, Trophy, type LucideIcon } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import type { SectionId } from "@/lib/navigation"
 
-type FeatureId = "premios" | "ranking" | "ahorros" | "enviar" | "alertas" | "nfc"
+type FeatureId = "ranking" | "ahorros" | "enviar" | "alertas" | "nfc"
 
 interface Feature {
   id: FeatureId
@@ -16,13 +16,6 @@ interface Feature {
 }
 
 const FEATURES: Feature[] = [
-  {
-    id: "premios",
-    title: "Premios y tienda",
-    description: "Canjeá tus LoriCoins por premios que elija tu familia.",
-    icon: Gift,
-    section: "premios",
-  },
   {
     id: "ranking",
     title: "Ranking",

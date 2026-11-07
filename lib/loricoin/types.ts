@@ -62,9 +62,36 @@ export interface Penalty {
   tx_signature: string | null
 }
 
+export interface Reward {
+  id: string
+  name: string
+  description: string | null
+  category: string
+  price: number
+  stock: number
+  image_url: string | null
+}
+
+export type RedemptionStatus = "canjeado" | "entregado"
+
+export interface Redemption {
+  id: string
+  reward_id: string
+  child_id: string
+  reward_name: string
+  reward_image: string | null
+  price: number
+  status: RedemptionStatus
+  tx_signature: string | null
+  created_at: string
+  redeemed_at: string | null
+  delivered_at: string | null
+}
+
 export interface MeResponse {
   profile: Profile
   children: ChildSummary[]
   tasks: Task[]
   penalties: Penalty[]
+  redemptions: Redemption[]
 }
