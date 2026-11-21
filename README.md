@@ -41,7 +41,7 @@ Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argenti
 2. Conectar la wallet de Playground en **devnet** y pedir SOL (`solana airdrop 2`).
 3. **Build** y **Deploy**. Copiar el Program ID que queda en `declare_id!`.
 4. Pegar `loricoin_family.test.ts` en la carpeta de tests y presionar **Test**.
-5. Exportar el IDL (Build → Export IDL) a `anchor/idl/loricoin_family.json`.
+5. IDL exportado desde Solana Playground y versionado en `anchor/idl/loricoin_family.json` (6 instrucciones: `createFamily`, `addChild`, `createTask`, `updateTaskReward`, `approveTask`, `closeChild`; cuentas `Family`, `Child`, `Task`).
 6. Configurar `NEXT_PUBLIC_LORICOIN_PROGRAM_ID` en Vercel y redeployar.
 
 ### Evidencia
