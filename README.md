@@ -6,6 +6,63 @@ LoriCoin is a family app where parents assign tasks, kids complete them, and app
 
 Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argentina. Neither of us had built anything on web3 before this hackathon.
 
+## Trabajo final: programa Anchor `loricoin_family`
+
+**Ruta:** proyecto propio (equivalente a Registro / Cliente / Venta del ejemplo: Familia / Hijo / Tarea).
+
+| | |
+|---|---|
+| Program ID (devnet) | `PROGRAM_ID_AQUI` |
+| Código del programa | [`anchor/programs/loricoin_family/src/lib.rs`](anchor/programs/loricoin_family/src/lib.rs) |
+| Tests | [`anchor/tests/loricoin_family.test.ts`](anchor/tests/loricoin_family.test.ts) |
+| IDL | [`anchor/idl/loricoin_family.json`](anchor/idl/loricoin_family.json) |
+| Frontend con wallet | [`/programa`](https://v0-apploricoin.vercel.app/programa) (Phantom en devnet) |
+
+### Cuentas y PDAs
+
+| Cuenta | Seeds | Relación |
+|---|---|---|
+| `Family` | `["family", parent]` | `parent` es la autoridad |
+| `Child` | `["child", family, child_id u16]` | `has_one = family` |
+| `Task` | `["task", child, task_id u32]` | `has_one = child` |
+
+### Instrucciones y reglas
+
+- `create_family(name)`: crea la familia, el firmante queda como autoridad.
+- `add_child(name)`: solo la autoridad (`Unauthorized`).
+- `create_task(title, reward)`: recompensa entre 1 y 1000 (`InvalidReward`).
+- `update_task_reward(reward)`: solo tareas pendientes (`TaskNotPending`).
+- `approve_task()`: suma la recompensa al saldo del hijo; no se puede aprobar dos veces.
+- `close_child()`: cierra la cuenta y devuelve la renta, solo si no tiene tareas pendientes (`ChildHasPendingTasks`).
+
+### Cómo desplegar y probar (Solana Playground)
+
+1. Abrir [beta.solpg.io](https://beta.solpg.io), crear un proyecto Anchor y pegar `lib.rs`.
+2. Conectar la wallet de Playground en **devnet** y pedir SOL (`solana airdrop 2`).
+3. **Build** y **Deploy**. Copiar el Program ID que queda en `declare_id!`.
+4. Pegar `loricoin_family.test.ts` en la carpeta de tests y presionar **Test**.
+5. Exportar el IDL (Build → Export IDL) a `anchor/idl/loricoin_family.json`.
+6. Configurar `NEXT_PUBLIC_LORICOIN_PROGRAM_ID` en Vercel y redeployar.
+
+### Evidencia
+
+| # | Caso | Resultado | Transacción o error |
+|---|---|---|---|
+| 1 | Crear familia | Válido | TX_1 |
+| 2 | Agregar hijo (PDA) | Válido | TX_2 |
+| 3 | Crear tarea | Válido | TX_3 |
+| 4 | Recompensa 0 | Rechazado | `InvalidReward` |
+| 5 | Editar recompensa | Válido | TX_5 |
+| 6 | Cerrar hijo con pendientes | Rechazado | `ChildHasPendingTasks` |
+| 7 | Otra wallet aprueba | Rechazado | `Unauthorized` |
+| 8 | Aprobar tarea | Válido | TX_8 |
+| 9 | Aprobar dos veces | Rechazado | `TaskNotPending` |
+| 10 | Cerrar hijo sin pendientes | Válido | TX_10 |
+
+### Aporte propio
+
+Además del CRUD, el programa modela una economía familiar: el saldo del hijo solo crece al aprobar tareas firmadas por el padre, y la app ya acuña el token SPL LoriCoin en devnet cuando se aprueba una tarea.
+
 ## How it works
 
 1. **Parent creates a task** (e.g. "Tidy your room") with a LoriCoin reward.
