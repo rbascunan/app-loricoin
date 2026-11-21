@@ -12,7 +12,7 @@ Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argenti
 
 | | |
 |---|---|
-| Program ID (devnet) | `PROGRAM_ID_AQUI` |
+| Program ID (devnet) | [`tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz`](https://explorer.solana.com/address/tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz?cluster=devnet) |
 | Código del programa | [`anchor/programs/loricoin_family/src/lib.rs`](anchor/programs/loricoin_family/src/lib.rs) |
 | Tests | [`anchor/tests/loricoin_family.test.ts`](anchor/tests/loricoin_family.test.ts) |
 | IDL | [`anchor/idl/loricoin_family.json`](anchor/idl/loricoin_family.json) |

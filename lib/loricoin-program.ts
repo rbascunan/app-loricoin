@@ -7,7 +7,8 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js"
 
-export const PROGRAM_ID_STRING = process.env.NEXT_PUBLIC_LORICOIN_PROGRAM_ID ?? ""
+export const PROGRAM_ID_STRING =
+  process.env.NEXT_PUBLIC_LORICOIN_PROGRAM_ID || "tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz"
 export const RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "https://api.devnet.solana.com"
 
 export function getProgramId(): PublicKey | null {

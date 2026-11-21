@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 
-// Solana Playground replaces this with the real Program ID on the first build.
-declare_id!("11111111111111111111111111111111");
+declare_id!("tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz");
 
 pub const MAX_NAME_LEN: usize = 32;
 pub const MAX_TITLE_LEN: usize = 48;
