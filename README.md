@@ -59,6 +59,8 @@ Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argenti
 | 9 | Aprobar dos veces | Rechazado | `TaskNotPending` |
 | 10 | Cerrar hijo sin pendientes | Válido | TX_10 |
 
+Las transacciones válidas se pueden ver en el [historial del programa en Explorer (devnet)](https://explorer.solana.com/address/tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz?cluster=devnet). Los rechazos devuelven el código de error de Anchor indicado.
+
 ### Aporte propio
 
 Además del CRUD, el programa modela una economía familiar: el saldo del hijo solo crece al aprobar tareas firmadas por el padre, y la app ya acuña el token SPL LoriCoin en devnet cuando se aprueba una tarea.
@@ -100,19 +102,16 @@ You can inspect the token on Solana Explorer (select cluster: Devnet).
 
 ## Test access for judges
 
-Use these demo accounts to try the full flow:
-
-- Parent: `PARENT_EMAIL` / `PARENT_PASSWORD`
-- Child: `CHILD_EMAIL` / `CHILD_PASSWORD`
+Create a parent account at https://v0-apploricoin.vercel.app, add a child from the parent view and log in as the child from the "Hijo o hija" tab. To try the Anchor program directly, open `/programa` with Phantom on Devnet.
 
 ## Run it locally
 
 ```bash
-git clone https://github.com/rbascunan/loricoin.git
-cd loricoin
-npm install
-cp .env.example .env.local   # fill in the variables below
-npm run dev
+git clone https://github.com/rbascunan/app-loricoin.git
+cd app-loricoin
+pnpm install
+# create .env.local with the variables below
+pnpm dev
 ```
 
 Environment variables:
@@ -120,9 +119,12 @@ Environment variables:
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=          # server-side only
 SOLANA_RPC_URL=https://api.devnet.solana.com
 LORICOIN_MINT_ADDRESS=BKpo4BuLje94dJSWcBmas39J4sVm7kbCrvByqhgCp8Ap
-MINT_AUTHORITY_SECRET_KEY=   # server-side only, never committed
+SOLANA_MINT_AUTHORITY_KEY=          # server-side only, never committed
+WALLET_ENCRYPTION_KEY=              # server-side only, encrypts kids' wallet keys
+NEXT_PUBLIC_LORICOIN_PROGRAM_ID=tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz
 ```
 
 ## Scope of this hackathon
