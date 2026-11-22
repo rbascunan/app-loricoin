@@ -48,18 +48,18 @@ Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argenti
 
 | # | Caso | Resultado | Transacción o error |
 |---|---|---|---|
-| 1 | Crear familia | Válido | TX_1 |
-| 2 | Agregar hijo (PDA) | Válido | TX_2 |
-| 3 | Crear tarea | Válido | TX_3 |
+| 1 | Crear familia | Válido | Cuenta `Family` ya creada en una corrida anterior; el test la reutiliza |
+| 2 | Agregar hijo (PDA) | Válido | [4yN6aXLQ…](https://explorer.solana.com/tx/4yN6aXLQ6aAMkgZeu4VD58BuhaBGHqaxmktVfVMAqkJpPA536aRq8vqFRfZCLEVai9qSignNwS2XQBmjCe9sRncc?cluster=devnet) |
+| 3 | Crear tarea | Válido | [2WbW4GES…](https://explorer.solana.com/tx/2WbW4GESNwh2c1SrCQucwGtT5jBwTjGadUjCicrHAmQhtjikB7sJwnsn5JSp61wt51sUtgKtLcfMe9JvKF9rTVVY?cluster=devnet) |
 | 4 | Recompensa 0 | Rechazado | `InvalidReward` |
-| 5 | Editar recompensa | Válido | TX_5 |
+| 5 | Editar recompensa | Válido | [Erb5Rnrn…](https://explorer.solana.com/tx/Erb5RnrnzCabioDwdb7jbiLVPVszmG8bMEbtovzV1ANvNVBVNY9tsqTu5LsibhmryqD7eEhnpCgncE77Bk3kpFE?cluster=devnet) |
 | 6 | Cerrar hijo con pendientes | Rechazado | `ChildHasPendingTasks` |
 | 7 | Otra wallet aprueba | Rechazado | `Unauthorized` |
-| 8 | Aprobar tarea | Válido | TX_8 |
+| 8 | Aprobar tarea | Válido | [jQLSS9mw…](https://explorer.solana.com/tx/jQLSS9mw39uijoGaqotgzSgQAF41hoL2RXRSJZXW6ffNcvbDNPBFb7z1cUqxJRLaYjAoZ7tw42XKe3WBMXQkkqn?cluster=devnet) |
 | 9 | Aprobar dos veces | Rechazado | `TaskNotPending` |
-| 10 | Cerrar hijo sin pendientes | Válido | TX_10 |
+| 10 | Cerrar hijo sin pendientes | Válido | [29SJGijK…](https://explorer.solana.com/tx/29SJGijKMcyJGFtavHjKykbXutGCbKWVY6jHwh99WmUqGLz4Awv271WdNVis5FpEDLZmwarJuTFWV5VVzZi3Dh29?cluster=devnet) |
 
-Las transacciones válidas se pueden ver en el [historial del programa en Explorer (devnet)](https://explorer.solana.com/address/tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz?cluster=devnet). Los rechazos devuelven el código de error de Anchor indicado.
+Resultado en Solana Playground: **10 passing (9s)** contra devnet. Las transacciones válidas también aparecen en el [historial del programa en Explorer (devnet)](https://explorer.solana.com/address/tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz?cluster=devnet). Los rechazos devuelven el código de error de Anchor indicado.
 
 ### Aporte propio
 
