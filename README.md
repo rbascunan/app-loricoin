@@ -4,7 +4,66 @@
 
 LoriCoin is a family app where parents assign tasks, kids complete them, and approved tasks earn **LoriCoins**, an SPL token on Solana. It teaches children responsibility, saving and the basics of digital money, with a parent always in control.
 
-Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argentina. Neither of us had built anything on web3 before this hackathon.
+Built by a father-and-son team from Mendoza, Argentina. Neither of us had built anything on web3 before this project.
+
+## Trabajo final: programa Anchor `loricoin_family`
+
+**Ruta:** proyecto propio (equivalente a Registro / Cliente / Venta del ejemplo: Familia / Hijo / Tarea).
+
+| | |
+|---|---|
+| Program ID (devnet) | [`tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz`](https://explorer.solana.com/address/tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz?cluster=devnet) |
+| Código del programa | [`anchor/programs/loricoin_family/src/lib.rs`](anchor/programs/loricoin_family/src/lib.rs) |
+| Tests | [`anchor/tests/loricoin_family.test.ts`](anchor/tests/loricoin_family.test.ts) |
+| IDL | [`anchor/idl/loricoin_family.json`](anchor/idl/loricoin_family.json) |
+| Frontend con wallet | [`/programa`](https://v0-apploricoin.vercel.app/programa) (Phantom en devnet) |
+
+### Cuentas y PDAs
+
+| Cuenta | Seeds | Relación |
+|---|---|---|
+| `Family` | `["family", parent]` | `parent` es la autoridad |
+| `Child` | `["child", family, child_id u16]` | `has_one = family` |
+| `Task` | `["task", child, task_id u32]` | `has_one = child` |
+
+### Instrucciones y reglas
+
+- `create_family(name)`: crea la familia, el firmante queda como autoridad.
+- `add_child(name)`: solo la autoridad (`Unauthorized`).
+- `create_task(title, reward)`: recompensa entre 1 y 1000 (`InvalidReward`).
+- `update_task_reward(reward)`: solo tareas pendientes (`TaskNotPending`).
+- `approve_task()`: suma la recompensa al saldo del hijo; no se puede aprobar dos veces.
+- `close_child()`: cierra la cuenta y devuelve la renta, solo si no tiene tareas pendientes (`ChildHasPendingTasks`).
+
+### Cómo desplegar y probar (Solana Playground)
+
+1. Abrir [beta.solpg.io](https://beta.solpg.io), crear un proyecto Anchor y pegar `lib.rs`.
+2. Conectar la wallet de Playground en **devnet** y pedir SOL (`solana airdrop 2`).
+3. **Build** y **Deploy**. Copiar el Program ID que queda en `declare_id!`.
+4. Pegar `loricoin_family.test.ts` en la carpeta de tests y presionar **Test**.
+5. IDL exportado desde Solana Playground y versionado en `anchor/idl/loricoin_family.json` (6 instrucciones: `createFamily`, `addChild`, `createTask`, `updateTaskReward`, `approveTask`, `closeChild`; cuentas `Family`, `Child`, `Task`).
+6. Configurar `NEXT_PUBLIC_LORICOIN_PROGRAM_ID` en Vercel y redeployar.
+
+### Evidencia
+
+| # | Caso | Resultado | Transacción o error |
+|---|---|---|---|
+| 1 | Crear familia | Válido | Cuenta `Family` ya creada en una corrida anterior; el test la reutiliza |
+| 2 | Agregar hijo (PDA) | Válido | [4yN6aXLQ…](https://explorer.solana.com/tx/4yN6aXLQ6aAMkgZeu4VD58BuhaBGHqaxmktVfVMAqkJpPA536aRq8vqFRfZCLEVai9qSignNwS2XQBmjCe9sRncc?cluster=devnet) |
+| 3 | Crear tarea | Válido | [2WbW4GES…](https://explorer.solana.com/tx/2WbW4GESNwh2c1SrCQucwGtT5jBwTjGadUjCicrHAmQhtjikB7sJwnsn5JSp61wt51sUtgKtLcfMe9JvKF9rTVVY?cluster=devnet) |
+| 4 | Recompensa 0 | Rechazado | `InvalidReward` |
+| 5 | Editar recompensa | Válido | [Erb5Rnrn…](https://explorer.solana.com/tx/Erb5RnrnzCabioDwdb7jbiLVPVszmG8bMEbtovzV1ANvNVBVNY9tsqTu5LsibhmryqD7eEhnpCgncE77Bk3kpFE?cluster=devnet) |
+| 6 | Cerrar hijo con pendientes | Rechazado | `ChildHasPendingTasks` |
+| 7 | Otra wallet aprueba | Rechazado | `Unauthorized` |
+| 8 | Aprobar tarea | Válido | [jQLSS9mw…](https://explorer.solana.com/tx/jQLSS9mw39uijoGaqotgzSgQAF41hoL2RXRSJZXW6ffNcvbDNPBFb7z1cUqxJRLaYjAoZ7tw42XKe3WBMXQkkqn?cluster=devnet) |
+| 9 | Aprobar dos veces | Rechazado | `TaskNotPending` |
+| 10 | Cerrar hijo sin pendientes | Válido | [29SJGijK…](https://explorer.solana.com/tx/29SJGijKMcyJGFtavHjKykbXutGCbKWVY6jHwh99WmUqGLz4Awv271WdNVis5FpEDLZmwarJuTFWV5VVzZi3Dh29?cluster=devnet) |
+
+Resultado en Solana Playground: **10 passing (9s)** contra devnet. Las transacciones válidas también aparecen en el [historial del programa en Explorer (devnet)](https://explorer.solana.com/address/tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz?cluster=devnet). Los rechazos devuelven el código de error de Anchor indicado.
+
+### Aporte propio
+
+Además del CRUD, el programa modela una economía familiar: el saldo del hijo solo crece al aprobar tareas firmadas por el padre, y la app ya acuña el token SPL LoriCoin en devnet cuando se aprueba una tarea.
 
 ## How it works
 
@@ -41,21 +100,18 @@ You can inspect the token on Solana Explorer (select cluster: Devnet).
 - App: https://v0-apploricoin.vercel.app
 - Landing: https://web-loricoin.vercel.app
 
-## Test access for judges
+## Try it
 
-Use these demo accounts to try the full flow:
-
-- Parent: `PARENT_EMAIL` / `PARENT_PASSWORD`
-- Child: `CHILD_EMAIL` / `CHILD_PASSWORD`
+Create a parent account at https://v0-apploricoin.vercel.app, add a child from the parent view and log in as the child from the "Hijo o hija" tab. To try the Anchor program directly, open `/programa` with Phantom on Devnet.
 
 ## Run it locally
 
 ```bash
-git clone https://github.com/rbascunan/loricoin.git
-cd loricoin
-npm install
-cp .env.example .env.local   # fill in the variables below
-npm run dev
+git clone https://github.com/rbascunan/app-loricoin.git
+cd app-loricoin
+pnpm install
+# create .env.local with the variables below
+pnpm dev
 ```
 
 Environment variables:
@@ -63,12 +119,15 @@ Environment variables:
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=          # server-side only
 SOLANA_RPC_URL=https://api.devnet.solana.com
 LORICOIN_MINT_ADDRESS=BKpo4BuLje94dJSWcBmas39J4sVm7kbCrvByqhgCp8Ap
-MINT_AUTHORITY_SECRET_KEY=   # server-side only, never committed
+SOLANA_MINT_AUTHORITY_KEY=          # server-side only, never committed
+WALLET_ENCRYPTION_KEY=              # server-side only, encrypts kids' wallet keys
+NEXT_PUBLIC_LORICOIN_PROGRAM_ID=tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz
 ```
 
-## Scope of this hackathon
+## Scope
 
 Included: the task, approval and reward flow, on both web2 and Solana Devnet.
 
