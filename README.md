@@ -4,7 +4,7 @@
 
 LoriCoin is a family app where parents assign tasks, kids complete them, and approved tasks earn **LoriCoins**, an SPL token on Solana. It teaches children responsibility, saving and the basics of digital money, with a parent always in control.
 
-Built for the Colosseum hackathon by a father-and-son team from Mendoza, Argentina. Neither of us had built anything on web3 before this hackathon.
+Built by a father-and-son team from Mendoza, Argentina. Neither of us had built anything on web3 before this project.
 
 ## Trabajo final: programa Anchor `loricoin_family`
 
@@ -100,7 +100,7 @@ You can inspect the token on Solana Explorer (select cluster: Devnet).
 - App: https://v0-apploricoin.vercel.app
 - Landing: https://web-loricoin.vercel.app
 
-## Test access for judges
+## Try it
 
 Create a parent account at https://v0-apploricoin.vercel.app, add a child from the parent view and log in as the child from the "Hijo o hija" tab. To try the Anchor program directly, open `/programa` with Phantom on Devnet.
 
@@ -127,7 +127,7 @@ WALLET_ENCRYPTION_KEY=              # server-side only, encrypts kids' wallet ke
 NEXT_PUBLIC_LORICOIN_PROGRAM_ID=tzNXR8sb1amWnYCCA9dmUTVXfLMbcF6nStdxmAsnWWz
 ```
 
-## Scope of this hackathon
+## Scope
 
 Included: the task, approval and reward flow, on both web2 and Solana Devnet.
 
