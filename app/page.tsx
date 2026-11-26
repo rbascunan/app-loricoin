@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, Loader2, LogOut } from "lucide-react"
+import { Loader2, LogOut, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { LoginScreen } from "@/components/login-screen"
 import { AppFooter } from "@/components/app-footer"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { MobileNav } from "@/components/mobile-nav"
-import { ComingSoonSection } from "@/components/coming-soon"
 import { CoinAmount } from "@/components/loricoin/task-ui"
+import { NotificationCenter } from "@/components/loricoin/notification-center"
+import { RankingSection } from "@/components/sections/ranking-section"
+import { GoalsSection } from "@/components/sections/goals-section"
 import { DashboardSection } from "@/components/sections/dashboard-section"
 import { TasksSection } from "@/components/sections/tasks-section"
 import { FamilySection } from "@/components/sections/family-section"
@@ -51,7 +53,7 @@ function DataError({ message, onRetry, onSignOut }: { message: string; onRetry: 
 }
 
 export default function Home() {
-  const { authStatus, profile, children, redemptions, isChildMode, dataError, refresh, signOut } = useApp()
+  const { authStatus, profile, children, isChildMode, dataError, refresh, signOut } = useApp()
   const [activeSection, setActiveSection] = useState<SectionId>("dashboard")
 
   if (authStatus === "loading") return <FullScreenLoader />
@@ -61,7 +63,6 @@ export default function Home() {
   }
 
   const headerCoins = isChildMode ? profile.lori_coins : children.reduce((sum, c) => sum + c.lori_coins, 0)
-  const pendingPrizes = redemptions.filter((r) => r.status === "canjeado").length
 
   const renderSection = () => {
     switch (activeSection) {
@@ -78,7 +79,9 @@ export default function Home() {
       case "premios":
         return <PremiosSection />
       case "ranking":
-        return <ComingSoonSection featureId="ranking" />
+        return <RankingSection />
+      case "metas":
+        return <GoalsSection />
       default:
         return <DashboardSection onNavigate={setActiveSection} />
     }
@@ -101,21 +104,7 @@ export default function Home() {
             >
               <CoinAmount amount={headerCoins} />
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={() => setActiveSection("family")}
-              title="Notificaciones"
-              aria-label={pendingPrizes > 0 ? `Notificaciones, ${pendingPrizes} premios por entregar` : "Notificaciones"}
-            >
-              <Bell className="h-5 w-5" aria-hidden="true" />
-              {pendingPrizes > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
-                  {pendingPrizes}
-                </span>
-              )}
-            </Button>
+            <NotificationCenter />
             <Button variant="ghost" size="icon" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión">
               <LogOut className="h-5 w-5" aria-hidden="true" />
             </Button>
@@ -127,6 +116,17 @@ export default function Home() {
         </main>
         <AppFooter className="border-t pb-24 md:pb-3" />
       </div>
+
+      {activeSection !== "loria" && (
+        <Button
+          onClick={() => setActiveSection("loria")}
+          className="fixed bottom-20 right-4 z-40 h-12 gap-2 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 text-white shadow-lg hover:from-violet-700 hover:to-fuchsia-700 md:bottom-6 md:right-6"
+          aria-label="Abrir LorIA, tu asistente"
+        >
+          <Sparkles className="h-5 w-5" aria-hidden="true" />
+          LorIA
+        </Button>
+      )}
 
       <MobileNav activeSection={activeSection} onSectionChange={setActiveSection} />
     </div>

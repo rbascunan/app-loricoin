@@ -32,10 +32,10 @@ class MemoryRepo implements TaskRepo {
   private seq = 0
 
   constructor() {
-    this.add(profile({ id: PARENT, name: "Ana", role: "parent", parent_id: null, username: null }))
-    this.add(profile({ id: OTHER_PARENT, name: "Beto", role: "parent", parent_id: null, username: null }))
-    this.add(profile({ id: CHILD, name: "Lola", role: "child", parent_id: PARENT, username: "lola" }))
-    this.add(profile({ id: OTHER_CHILD, name: "Tomi", role: "child", parent_id: OTHER_PARENT, username: "tomi" }))
+    this.add(profile({ id: PARENT, name: "Ana", role: "parent", parent_id: null, username: null , avatar: null, notifications_seen_at: null }))
+    this.add(profile({ id: OTHER_PARENT, name: "Beto", role: "parent", parent_id: null, username: null , avatar: null, notifications_seen_at: null }))
+    this.add(profile({ id: CHILD, name: "Lola", role: "child", parent_id: PARENT, username: "lola" , avatar: null, notifications_seen_at: null }))
+    this.add(profile({ id: OTHER_CHILD, name: "Tomi", role: "child", parent_id: OTHER_PARENT, username: "tomi" , avatar: null, notifications_seen_at: null }))
   }
 
   add(p: Profile) {
@@ -50,7 +50,7 @@ class MemoryRepo implements TaskRepo {
   }
   async createChildAccount(input: { name: string; username: string; parentId: string }) {
     const id = `55555555-5555-4555-8555-${String(++this.seq).padStart(12, "0")}`
-    this.add(profile({ id, name: input.name, role: "child", parent_id: input.parentId, username: input.username }))
+    this.add(profile({ id, name: input.name, role: "child", parent_id: input.parentId, username: input.username , avatar: null, notifications_seen_at: null }))
     return { ok: true as const, id }
   }
   async countActiveTasks(childId: string) {

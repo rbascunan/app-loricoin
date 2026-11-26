@@ -18,12 +18,12 @@ export function MobileNav({ activeSection, onSectionChange }: MobileNavProps) {
       aria-label="Principal"
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
-      <ul className="flex">
+      <ul className="flex overflow-x-auto [scrollbar-width:none]">
         {items.map((item) => {
           const Icon = item.icon
           const active = item.id === activeSection
           return (
-            <li key={item.id} className="flex-1">
+            <li key={item.id} className="min-w-16 flex-1">
               <button
                 type="button"
                 onClick={() => onSectionChange(item.id)}

@@ -3,7 +3,17 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import useSWR from "swr"
 import { createClient } from "@/lib/supabase/client"
-import type { ChildSummary, MeResponse, Penalty, Profile, Redemption, Task, WalletResponse } from "@/lib/loricoin/types"
+import type {
+  Bonus,
+  ChildSummary,
+  MeResponse,
+  Penalty,
+  Profile,
+  Redemption,
+  SavingsGoal,
+  Task,
+  WalletResponse,
+} from "@/lib/loricoin/types"
 
 async function fetchWallet([url]: [string, string]): Promise<WalletResponse> {
   const res = await fetch(url, { cache: "no-store" })
@@ -40,6 +50,9 @@ interface AppContextValue {
   tasks: Task[]
   penalties: Penalty[]
   redemptions: Redemption[]
+  bonuses: Bonus[]
+  goals: SavingsGoal[]
+  markNotificationsSeen: () => Promise<void>
   isChildMode: boolean
   isLoadingData: boolean
   dataError: string | null
@@ -98,6 +111,25 @@ export function AppProvider({ children: content }: { children: ReactNode }) {
     tasks: data?.tasks ?? [],
     penalties: data?.penalties ?? [],
     redemptions: data?.redemptions ?? [],
+    bonuses: data?.bonuses ?? [],
+    goals: data?.goals ?? [],
+    markNotificationsSeen: async () => {
+      if (!data) return
+      const seenAt = new Date().toISOString()
+      await mutate(
+        async () => {
+          const res = await fetch("/api/notifications/seen", { method: "POST" })
+          if (!res.ok) throw new Error("No se pudieron marcar las notificaciones")
+          const body = (await res.json()) as { seenAt: string }
+          return { ...data, profile: { ...data.profile, notifications_seen_at: body.seenAt } }
+        },
+        {
+          optimisticData: { ...data, profile: { ...data.profile, notifications_seen_at: seenAt } },
+          rollbackOnError: true,
+          revalidate: false,
+        },
+      ).catch(() => undefined)
+    },
     isChildMode: data?.profile.role === "child",
     isLoadingData: isLoading,
     dataError: error ? (error as Error).message : null,
