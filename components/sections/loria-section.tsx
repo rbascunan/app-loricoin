@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Send, Sparkles, Lightbulb, PiggyBank, Target, HelpCircle, BookOpen, Loader2 } from "lucide-react"
+import { Send, Sparkles, Lightbulb, PiggyBank, Target, HelpCircle, BookOpen, Loader2, Trash2, History } from "lucide-react"
+import useSWR from "swr"
+import { LoriaMarkdown } from "@/components/loricoin/loria-markdown"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import { getKnowledgeResponse } from "@/lib/loria-knowledge"
 import { initials } from "@/lib/loricoin/client-utils"
@@ -30,6 +32,24 @@ interface Message {
   id: string
   role: "user" | "assistant"
   content: string
+  createdAt?: string
+}
+
+const historyFetcher = async (url: string): Promise<{ messages: Message[] }> => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("No se pudo cargar el historial")
+  return res.json()
+}
+
+const dayKey = (iso?: string) => new Date(iso ?? Date.now()).toDateString()
+
+function dayLabel(iso?: string) {
+  const date = new Date(iso ?? Date.now())
+  const today = new Date()
+  const yesterday = new Date(Date.now() - 86_400_000)
+  if (date.toDateString() === today.toDateString()) return "Hoy"
+  if (date.toDateString() === yesterday.toDateString()) return "Ayer"
+  return date.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })
 }
 
 export function LoriaSection() {
@@ -42,6 +62,28 @@ export function LoriaSection() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [useLocalFallback, setUseLocalFallback] = useState(false)
+  const [historyApplied, setHistoryApplied] = useState(false)
+  const [isClearing, setIsClearing] = useState(false)
+
+  const { data: history, isLoading: historyLoading } = useSWR("/api/loria/history", historyFetcher, {
+    revalidateOnFocus: false,
+  })
+
+  if (history && !historyApplied) {
+    setHistoryApplied(true)
+    setMessages((prev) => (prev.length ? prev : history.messages))
+  }
+
+  const handleClearHistory = async () => {
+    if (!window.confirm("¿Borrar todo tu historial con LorIA?")) return
+    setIsClearing(true)
+    try {
+      const res = await fetch("/api/loria/history", { method: "DELETE" })
+      if (res.ok) setMessages([])
+    } finally {
+      setIsClearing(false)
+    }
+  }
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -188,6 +230,24 @@ export function LoriaSection() {
         {/* Chat Area */}
         <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
+            <div className="flex items-center justify-between gap-2 border-b px-4 py-2 text-xs text-muted-foreground shrink-0">
+              <span className="flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5" aria-hidden="true" />
+                {historyLoading ? "Cargando tu historial..." : "Se guardan tus charlas del último mes"}
+              </span>
+              {messages.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={handleClearHistory}
+                  disabled={isClearing || isLoading}
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
+                  Borrar historial
+                </Button>
+              )}
+            </div>
             {/* Messages */}
             <ScrollArea className="flex-1 p-4" ref={scrollRef}>
               {messages.length === 0 ? (
@@ -214,9 +274,16 @@ export function LoriaSection() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map((msg) => (
+                  {messages.map((msg, index) => (
+                    <div key={msg.id} className="space-y-4">
+                    {(index === 0 || dayKey(messages[index - 1].createdAt) !== dayKey(msg.createdAt)) && (
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground" role="separator">
+                        <span className="h-px flex-1 bg-border" />
+                        <span className="capitalize">{dayLabel(msg.createdAt)}</span>
+                        <span className="h-px flex-1 bg-border" />
+                      </div>
+                    )}
                     <div
-                      key={msg.id}
                       className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
                     >
                       <Avatar
@@ -239,8 +306,13 @@ export function LoriaSection() {
                             : "bg-muted rounded-tl-sm"
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{msg.content || "..."}</p>
+                        {msg.role === "assistant" && msg.content ? (
+                          <LoriaMarkdown content={msg.content} />
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap">{msg.content || "..."}</p>
+                        )}
                       </div>
+                    </div>
                     </div>
                   ))}
                   {isLoading && messages[messages.length - 1]?.role === "user" && (
