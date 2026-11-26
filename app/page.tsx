@@ -10,6 +10,7 @@ import { SidebarNav } from "@/components/sidebar-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { CoinAmount } from "@/components/loricoin/task-ui"
 import { NotificationCenter } from "@/components/loricoin/notification-center"
+import { ParentProfileDialog } from "@/components/loricoin/parent-profile-dialog"
 import { RankingSection } from "@/components/sections/ranking-section"
 import { GoalsSection } from "@/components/sections/goals-section"
 import { DashboardSection } from "@/components/sections/dashboard-section"
@@ -93,10 +94,14 @@ export default function Home() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b bg-background/80 px-4 py-3 backdrop-blur md:px-6">
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate font-semibold text-foreground">{profile.name}</span>
-            <span className="text-xs text-muted-foreground">{isChildMode ? "Hijo o hija" : "Padre o madre"}</span>
-          </div>
+          {isChildMode ? (
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate font-semibold text-foreground">{profile.name}</span>
+              <span className="text-xs text-muted-foreground">Hijo o hija</span>
+            </div>
+          ) : (
+            <ParentProfileDialog />
+          )}
           <div className="flex items-center gap-2">
             <span
               className="flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1"
