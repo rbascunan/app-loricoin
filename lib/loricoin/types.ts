@@ -10,6 +10,8 @@ export interface Profile {
   username: string | null
   lori_coins: number
   wallet_address: string | null
+  avatar: string | null
+  notifications_seen_at: string | null
 }
 
 export interface ChildSummary {
@@ -18,6 +20,7 @@ export interface ChildSummary {
   username: string | null
   lori_coins: number
   wallet_address: string | null
+  avatar: string | null
 }
 
 export interface WalletBalance {
@@ -88,10 +91,63 @@ export interface Redemption {
   delivered_at: string | null
 }
 
+export type BonusKind = "ranking" | "meta"
+export type BonusStatus = "pendiente" | "pagando" | "pagada"
+
+export interface Bonus {
+  id: string
+  child_id: string
+  parent_id: string | null
+  kind: BonusKind
+  amount: number
+  reason: string
+  week_start: string | null
+  goal_id: string | null
+  status: BonusStatus
+  tx_signature: string | null
+  created_at: string
+  paid_at: string | null
+}
+
+export type GoalStatus = "activa" | "cumplida" | "vencida" | "cancelada"
+
+export interface SavingsGoal {
+  id: string
+  parent_id: string
+  child_id: string
+  title: string
+  target: number
+  bonus: number
+  reward_id: string | null
+  start_balance: number
+  starts_at: string
+  ends_at: string
+  status: GoalStatus
+  created_at: string
+  completed_at: string | null
+}
+
+export interface RankingEntry {
+  childId: string
+  name: string
+  avatar: string | null
+  saved: number
+  isMe: boolean
+}
+
+export interface RankingResponse {
+  weekStart: string
+  weekEnd: string
+  entries: RankingEntry[]
+  lastWinners: { childId: string; name: string; avatar: string | null; isMe: boolean }[]
+}
+
 export interface MeResponse {
   profile: Profile
   children: ChildSummary[]
   tasks: Task[]
   penalties: Penalty[]
   redemptions: Redemption[]
+  bonuses: Bonus[]
+  goals: SavingsGoal[]
 }

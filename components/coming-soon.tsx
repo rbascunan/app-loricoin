@@ -1,11 +1,11 @@
 import Image from "next/image"
-import { Bell, Nfc, PiggyBank, Send, Trophy, type LucideIcon } from "lucide-react"
+import { Nfc, Send, type LucideIcon } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import type { SectionId } from "@/lib/navigation"
 
-type FeatureId = "ranking" | "ahorros" | "enviar" | "alertas" | "nfc"
+type FeatureId = "enviar" | "nfc"
 
 interface Feature {
   id: FeatureId
@@ -17,29 +17,10 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    id: "ranking",
-    title: "Ranking",
-    description: "Compará tu progreso con amigos y familia.",
-    icon: Trophy,
-    section: "ranking",
-  },
-  {
-    id: "ahorros",
-    title: "Ahorros y metas",
-    description: "Armá metas y seguí cuánto te falta para alcanzarlas.",
-    icon: PiggyBank,
-  },
-  {
     id: "enviar",
     title: "Enviar dinero",
     description: "Mandá la mesada y transferencias dentro de la familia.",
     icon: Send,
-  },
-  {
-    id: "alertas",
-    title: "Alertas",
-    description: "Avisos cuando hay tareas nuevas o recompensas acreditadas.",
-    icon: Bell,
   },
   {
     id: "nfc",
@@ -89,7 +70,7 @@ export function ComingSoonGrid({ onNavigate }: { onNavigate?: (section: SectionI
       <h2 id="coming-soon-title" className="text-lg font-semibold text-foreground">
         Lo que viene
       </h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {FEATURES.map((feature) => {
           const Icon = feature.icon
           const inner = (

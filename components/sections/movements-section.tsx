@@ -15,13 +15,28 @@ interface Movement {
   date: string
   amount: number
   signature: string | null
-  kind: "pago" | "descuento" | "canje"
+  kind: "pago" | "descuento" | "canje" | "premio"
   image?: string | null
   delivered?: boolean
+  bonusKind?: "ranking" | "meta"
+}
+
+function MiniStat({ label, amount, tone, sign }: { label: string; amount: number; tone: string; sign?: string }) {
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-0.5 p-3 md:p-4">
+        <span className="truncate text-xs text-muted-foreground md:text-sm">{label}</span>
+        <span className={`flex items-center gap-0.5 ${tone}`}>
+          {sign}
+          <CoinAmount amount={amount} className="text-base md:text-2xl" />
+        </span>
+      </CardContent>
+    </Card>
+  )
 }
 
 export function MovementsSection() {
-  const { tasks, penalties, redemptions, children, isChildMode } = useApp()
+  const { tasks, penalties, redemptions, bonuses, children, isChildMode } = useApp()
 
   const movements: Movement[] = [
     ...tasks
@@ -55,13 +70,30 @@ export function MovementsSection() {
       image: r.reward_image,
       delivered: r.status === "entregado",
     })),
+    ...bonuses
+      .filter((b) => b.status === "pagada")
+      .map((b) => ({
+        id: `b-${b.id}`,
+        title: b.reason,
+        childId: b.child_id,
+        date: b.paid_at ?? b.created_at,
+        amount: b.amount,
+        signature: b.tx_signature,
+        kind: "premio" as const,
+        bonusKind: b.kind,
+      })),
   ].sort((a, b) => b.date.localeCompare(a.date))
 
-  const earned = movements.filter((m) => m.kind === "pago").reduce((s, m) => s + m.amount, 0)
+  const earned = movements.filter((m) => m.kind === "pago" || m.kind === "premio").reduce((s, m) => s + m.amount, 0)
   const deducted = movements.filter((m) => m.kind === "descuento").reduce((s, m) => s + m.amount, 0)
   const redeemed = movements.filter((m) => m.kind === "canje").reduce((s, m) => s + m.amount, 0)
   const kindLabel = (m: Movement) =>
-    m.kind === "descuento" ? "Descuento" : m.kind === "canje" ? (m.delivered ? "Premio entregado" : "Premio canjeado") : "Tarea aprobada"
+    m.kind === "premio"
+      ? m.bonusKind === "ranking"
+        ? "Premio ranking semanal"
+        : "Premio meta de ahorro"
+      : m.kind === "descuento"
+        ? "Descuento" : m.kind === "canje" ? (m.delivered ? "Premio entregado" : "Premio canjeado") : "Tarea aprobada"
   const childName = (id: string) => children.find((c) => c.id === id)?.name ?? ""
 
   return (
@@ -75,29 +107,10 @@ export function MovementsSection() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between gap-4 p-5">
-            <span className="text-muted-foreground">{isChildMode ? "Total ganado" : "Total pagado"}</span>
-            <CoinAmount amount={earned} className="text-2xl" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between gap-4 p-5">
-            <span className="text-muted-foreground">Total descontado</span>
-            <span className="flex items-center gap-1 text-red-700">
-              -<CoinAmount amount={deducted} className="text-2xl" />
-            </span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between gap-4 p-5">
-            <span className="text-muted-foreground">En premios</span>
-            <span className="flex items-center gap-1 text-violet-700">
-              -<CoinAmount amount={redeemed} className="text-2xl" />
-            </span>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-3 gap-2 md:gap-4">
+        <MiniStat label={isChildMode ? "Ganado" : "Pagado"} amount={earned} tone="text-foreground" />
+        <MiniStat label="Descontado" amount={deducted} tone="text-red-700" sign="-" />
+        <MiniStat label="En canjes" amount={redeemed} tone="text-violet-700" sign="-" />
       </div>
 
       {movements.length === 0 ? (
@@ -141,10 +154,16 @@ export function MovementsSection() {
                   </div>
                   <span
                     className={`flex items-center gap-1 ${
-                      m.kind === "descuento" ? "text-red-700" : m.kind === "canje" ? "text-violet-700" : "text-emerald-700"
+                      m.kind === "descuento"
+                        ? "text-red-700"
+                        : m.kind === "canje"
+                          ? "text-violet-700"
+                          : m.kind === "premio"
+                            ? "text-amber-600"
+                            : "text-emerald-700"
                     }`}
                   >
-                    {m.kind === "pago" ? "+" : "-"}
+                    {m.kind === "pago" || m.kind === "premio" ? "+" : "-"}
                     <CoinAmount amount={m.amount} />
                   </span>
                 </li>

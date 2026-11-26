@@ -165,7 +165,7 @@ export async function createChild(
   }
 
   const wallet = await repo.getChildWalletAddress(created.id).catch(() => null)
-  return ok({ id: created.id, name, username, lori_coins: 0, wallet_address: wallet })
+  return ok({ id: created.id, name, username, lori_coins: 0, wallet_address: wallet, avatar: null })
 }
 
 export async function createTask(repo: TaskRepo, actorId: string, input: unknown): Promise<ServiceResult<Task>> {

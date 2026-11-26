@@ -5,6 +5,7 @@ import {
   Gift,
   LayoutDashboard,
   ListChecks,
+  Target,
   Trophy,
   User,
   Users,
@@ -20,6 +21,7 @@ export type SectionId =
   | "loricoins"
   | "premios"
   | "ranking"
+  | "metas"
 
 export interface NavItem {
   id: SectionId
@@ -39,9 +41,10 @@ export function getNavItems(isChild: boolean): NavItem[] {
       ? { id: "family", label: "Mi perfil", shortLabel: "Perfil", icon: User, mobile: true }
       : { id: "family", label: "Familia", shortLabel: "Familia", icon: Users, mobile: true },
     { id: "movements", label: "Movimientos", shortLabel: "Movim.", icon: ArrowRightLeft, mobile: true },
-    { id: "loria", label: "LorIA", shortLabel: "LorIA", icon: Bot, ai: true, mobile: true },
+    { id: "loria", label: "LorIA", shortLabel: "LorIA", icon: Bot, ai: true },
     { id: "loricoins", label: "LoriCoins", shortLabel: "Coins", icon: Coins, mobile: true },
     { id: "premios", label: "Tienda", shortLabel: "Tienda", icon: Gift, mobile: true },
-    { id: "ranking", label: "Ranking", shortLabel: "Ranking", icon: Trophy, comingSoon: true },
+    { id: "metas", label: "Metas de ahorro", shortLabel: "Metas", icon: Target, mobile: true },
+    { id: "ranking", label: "Ranking", shortLabel: "Ranking", icon: Trophy, mobile: true },
   ]
 }

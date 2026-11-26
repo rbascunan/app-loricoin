@@ -11,7 +11,7 @@ const REWARD_COLUMNS = "id, name, description, category, price, stock, image_url
 const REDEMPTION_COLUMNS =
   "id, reward_id, child_id, reward_name, reward_image, price, status, tx_signature, created_at, redeemed_at, delivered_at"
 
-const PROFILE_COLUMNS = "id, name, role, parent_id, username, lori_coins, wallet_address"
+const PROFILE_COLUMNS = "id, name, role, parent_id, username, lori_coins, wallet_address, avatar, notifications_seen_at"
 const PENALTY_COLUMNS = "id, parent_id, child_id, reason, amount, created_at, tx_signature"
 const TASK_COLUMNS =
   "id, parent_id, child_id, title, description, reward, status, rejection_note, created_at, done_at, resolved_at, tx_signature, paid_at, error_message, payment_started_at, payment_last_valid_height"
@@ -204,7 +204,7 @@ export function createSupabaseRepo() {
     async listChildren(parentId) {
       const { data, error } = await db
         .from("profiles")
-        .select("id, name, username, lori_coins, wallet_address")
+        .select("id, name, username, lori_coins, wallet_address, avatar")
         .eq("parent_id", parentId)
         .eq("role", "child")
         .order("created_at", { ascending: true })

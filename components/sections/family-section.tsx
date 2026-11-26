@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, type ReactNode } from "react"
+import { AvatarUploader, ChildAvatar, ChildEditDialog } from "@/components/loricoin/child-editor"
 import { Loader2, UserPlus } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -119,19 +120,32 @@ function CreateChildForm() {
   )
 }
 
-function PersonCard({ name, username, coins, detail }: { name: string; username: string | null; coins: number; detail?: string }) {
+function PersonCard({
+  name,
+  username,
+  coins,
+  avatar,
+  detail,
+  action,
+}: {
+  name: string
+  username: string | null
+  coins: number
+  avatar: string | null
+  detail?: string
+  action?: ReactNode
+}) {
   return (
     <Card>
       <CardContent className="flex items-center gap-4 p-4">
-        <Avatar className="h-12 w-12">
-          <AvatarFallback className="bg-emerald-100 font-semibold text-emerald-800">{initials(name)}</AvatarFallback>
-        </Avatar>
+        <ChildAvatar name={name} avatar={avatar} />
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate font-semibold text-foreground">{name}</span>
           {username && <span className="text-sm text-muted-foreground">Usuario: {username}</span>}
           {detail && <span className="text-xs text-muted-foreground">{detail}</span>}
         </div>
         <CoinAmount amount={coins} />
+        {action}
       </CardContent>
     </Card>
   )
@@ -147,7 +161,16 @@ export function FamilySection() {
           <h1 className="text-2xl font-bold text-foreground">Mi perfil</h1>
           <p className="text-muted-foreground">Tus datos en LoriCoin.</p>
         </header>
-        <PersonCard name={profile?.name ?? ""} username={profile?.username ?? null} coins={profile?.lori_coins ?? 0} />
+        {profile && (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-2 p-5">
+              <AvatarUploader child={{ id: profile.id, name: profile.name, avatar: profile.avatar ?? null }} />
+              <span className="font-semibold text-foreground">{profile.name}</span>
+              {profile.username && <span className="text-sm text-muted-foreground">Usuario: {profile.username}</span>}
+              <CoinAmount amount={profile.lori_coins ?? 0} />
+            </CardContent>
+          </Card>
+        )}
         <PrizeNotifications />
       </div>
     )
@@ -177,6 +200,8 @@ export function FamilySection() {
                   name={child.name}
                   username={child.username}
                   coins={child.lori_coins}
+                  avatar={child.avatar}
+                  action={<ChildEditDialog child={child} />}
                   detail={`${active} ${active === 1 ? "tarea activa" : "tareas activas"}`}
                 />
               )
