@@ -1,5 +1,15 @@
-import { cancelGoal } from "@/lib/server/goal-service"
+import { cancelGoal, updateGoal } from "@/lib/server/goal-service"
 import { getSessionUserId, handle, respond, unauthorized } from "@/lib/server/http"
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  return handle(async () => {
+    const userId = await getSessionUserId()
+    if (!userId) return unauthorized()
+    const { id } = await params
+    const body = await req.json().catch(() => null)
+    return respond(await updateGoal(userId, id, body))
+  })
+}
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   return handle(async () => {
