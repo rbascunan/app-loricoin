@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ErrorText } from "@/components/loricoin/task-ui"
 import { AppFooter } from "@/components/app-footer"
 import { PasswordInput } from "@/components/password-input"
+import { authRedirectUrl } from "@/components/loricoin/parent-profile-dialog"
 import { useApp } from "@/lib/app-context"
 import { LORICOIN_IMAGES } from "@/lib/loricoin-assets"
 import { childEmailFor, isValidPin, isValidUsername, normalizeUsername } from "@/lib/loricoin/rules"
@@ -38,6 +39,21 @@ function ParentForm() {
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
+
+  const handleForgotPassword = async () => {
+    setError(null)
+    setInfo(null)
+    const target = email.trim()
+    if (!/^\S+@\S+\.\S+$/.test(target)) return setError("Escribí tu correo arriba y tocá de nuevo para recuperar la contraseña.")
+    setPending(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(target, { redirectTo: authRedirectUrl("/?reset=1") })
+      if (error && /rate limit|too many/i.test(error.message)) return setError(translateAuthError(error.message))
+      setInfo("Si el correo tiene una cuenta, te llega un enlace para crear una contraseña nueva. Revisá también la carpeta de spam.")
+    } finally {
+      setPending(false)
+    }
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -111,6 +127,16 @@ function ParentForm() {
           required
         />
       </div>
+      {mode === "login" && (
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          disabled={pending}
+          className="-mt-2 self-end text-sm font-medium text-emerald-700 underline-offset-4 hover:underline disabled:opacity-60"
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
+      )}
       <ErrorText message={error} />
       {info && (
         <p role="status" className="text-sm font-medium text-emerald-700">

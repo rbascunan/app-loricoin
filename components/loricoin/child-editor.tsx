@@ -62,7 +62,13 @@ export function ChildAvatar({ name, avatar, className }: { name: string; avatar:
   )
 }
 
-export function AvatarUploader({ child }: { child: Pick<ChildSummary, "id" | "name" | "avatar"> }) {
+export function AvatarUploader({
+  child,
+  save,
+}: {
+  child: Pick<ChildSummary, "id" | "name" | "avatar">
+  save?: (avatar: string) => Promise<void>
+}) {
   const { refresh } = useApp()
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
@@ -76,7 +82,8 @@ export function AvatarUploader({ child }: { child: Pick<ChildSummary, "id" | "na
     setBusy(true)
     setError(null)
     try {
-      await patchChild(child.id, { avatar: await resizeToDataUrl(file) })
+      const avatar = await resizeToDataUrl(file)
+      await (save ? save(avatar) : patchChild(child.id, { avatar }))
       await refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos subir la foto")
