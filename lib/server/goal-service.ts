@@ -65,6 +65,50 @@ export async function createGoal(parentId: string, input: unknown): Promise<Serv
   return { ok: true, data: data as SavingsGoal }
 }
 
+export async function updateGoal(
+  parentId: string,
+  goalId: string,
+  input: unknown,
+): Promise<ServiceResult<SavingsGoal>> {
+  if (!isUuid(goalId)) return fail(404, "No encontramos esa meta")
+  const body = asRecord(input)
+  const db = createAdminClient()
+  const { data: current } = await db
+    .from("savings_goals")
+    .select("*")
+    .eq("id", goalId)
+    .eq("parent_id", parentId)
+    .eq("status", "activa")
+    .maybeSingle()
+  if (!current) return fail(404, "Solo se pueden editar metas activas")
+
+  const title = requiredText(body.title, GOAL_LIMITS.title)
+  if (!title) return fail(400, "Escribí para qué es la meta")
+  const target = intInRange(body.target, GOAL_LIMITS.minTarget, GOAL_LIMITS.maxTarget)
+  if (target === null) return fail(400, `La meta tiene que ser entre ${GOAL_LIMITS.minTarget} y ${GOAL_LIMITS.maxTarget} LoriCoins`)
+  const bonus = intInRange(body.bonus, GOAL_LIMITS.minBonus, GOAL_LIMITS.maxBonus)
+  if (bonus === null) return fail(400, `El premio tiene que ser entre ${GOAL_LIMITS.minBonus} y ${GOAL_LIMITS.maxBonus} LoriCoins`)
+  const months = intInRange(body.months, GOAL_LIMITS.minMonths, GOAL_LIMITS.maxMonths)
+  if (months === null) return fail(400, `El plazo tiene que ser entre ${GOAL_LIMITS.minMonths} y ${GOAL_LIMITS.maxMonths} meses`)
+  const rewardId = body.rewardId ? (isUuid(body.rewardId) ? body.rewardId : null) : null
+  if (body.rewardId && !rewardId) return fail(400, "Ese premio de la tienda no es válido")
+
+  const endsAt = new Date(current.starts_at as string)
+  endsAt.setMonth(endsAt.getMonth() + months)
+  if (endsAt.getTime() <= Date.now()) return fail(400, "Con ese plazo la meta ya estaría vencida; elegí más meses")
+
+  const { data, error } = await db
+    .from("savings_goals")
+    .update({ title, target, bonus, reward_id: rewardId, ends_at: endsAt.toISOString() })
+    .eq("id", goalId)
+    .eq("parent_id", parentId)
+    .eq("status", "activa")
+    .select("*")
+    .single()
+  if (error) throw error
+  return { ok: true, data: data as SavingsGoal }
+}
+
 export async function cancelGoal(parentId: string, goalId: string): Promise<ServiceResult<{ id: string }>> {
   if (!isUuid(goalId)) return fail(404, "No encontramos esa meta")
   const { data } = await createAdminClient()

@@ -98,7 +98,8 @@ export async function POST(req: Request) {
     const messages = rawMessages.slice(-20)
 
     const result = streamText({
-      model: groq('llama-3.3-70b-versatile'), // FREE with Groq!
+      // Groq retired llama-3.3-70b-versatile for this key; GROQ_MODEL lets us swap without a deploy.
+      model: groq(process.env.GROQ_MODEL || 'openai/gpt-oss-120b'),
       system: LORIA_SYSTEM_PROMPT,
       messages: messages,
       tools: {

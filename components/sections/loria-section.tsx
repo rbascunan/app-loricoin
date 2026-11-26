@@ -121,6 +121,11 @@ export function LoriaSection() {
           }
         }
 
+        if (!assistantContent.trim()) {
+          setMessages(prev => prev.filter(m => m.id !== assistantId))
+          throw new Error("Empty AI response")
+        }
+
       } catch {
         setUseLocalFallback(true)
         

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2, Plus, Target, Trash2 } from "lucide-react"
+import { Loader2, Pencil, Plus, Target, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,48 +22,69 @@ const STATUS_LABEL: Record<GoalStatus, { label: string; className: string }> = {
   cancelada: { label: "Cancelada", className: "bg-slate-100 text-slate-700" },
 }
 
-function GoalForm({ onDone }: { onDone: () => void }) {
+const MONTH_OPTIONS = [1, 2, 3, 6, 9, 12]
+
+function goalMonths(goal: SavingsGoal) {
+  const start = new Date(goal.starts_at)
+  const end = new Date(goal.ends_at)
+  const diff = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth()
+  return Math.min(GOAL_LIMITS.maxMonths, Math.max(GOAL_LIMITS.minMonths, diff))
+}
+
+function GoalForm({ goal, onDone }: { goal?: SavingsGoal; onDone: () => void }) {
   const { children, refresh } = useApp()
-  const [childId, setChildId] = useState(children[0]?.id ?? "")
-  const [title, setTitle] = useState("")
-  const [target, setTarget] = useState("200")
-  const [bonus, setBonus] = useState("20")
-  const [months, setMonths] = useState("3")
+  const isEdit = Boolean(goal)
+  const [childId, setChildId] = useState(goal?.child_id ?? children[0]?.id ?? "")
+  const [title, setTitle] = useState(goal?.title ?? "")
+  const [target, setTarget] = useState(String(goal?.target ?? 200))
+  const [bonus, setBonus] = useState(String(goal?.bonus ?? 20))
+  const [months, setMonths] = useState(String(goal ? goalMonths(goal) : 3))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const monthOptions = Array.from(new Set([...MONTH_OPTIONS, Number(months)])).sort((a, b) => a - b)
+  const fallbackError = isEdit ? "No pudimos guardar los cambios" : "No pudimos crear la meta"
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch("/api/goals", {
-        method: "POST",
+      const res = await fetch(isEdit ? `/api/goals/${goal!.id}` : "/api/goals", {
+        method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ childId, title, target: Number(target), bonus: Number(bonus), months: Number(months) }),
+        body: JSON.stringify({
+          childId,
+          title,
+          target: Number(target),
+          bonus: Number(bonus),
+          months: Number(months),
+          rewardId: goal?.reward_id ?? undefined,
+        }),
       })
       const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error ?? "No pudimos crear la meta")
+      if (!res.ok) throw new Error(body.error ?? fallbackError)
       await refresh()
       onDone()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No pudimos crear la meta")
+      setError(err instanceof Error ? err.message : fallbackError)
     } finally {
       setSaving(false)
     }
   }
 
+  const fieldId = (name: string) => `goal-${goal?.id ?? "new"}-${name}`
+
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Nueva meta de ahorro</CardTitle>
+    <Card className={cn(isEdit && "border-0 shadow-none")}>
+      <CardHeader className={cn("pb-2", isEdit && "px-0 pt-0")}>
+        <CardTitle className="text-lg">{isEdit ? "Editar meta" : "Nueva meta de ahorro"}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cn(isEdit && "px-0 pb-0")}>
         <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-child">Hijo o hija</Label>
-            <Select value={childId} onValueChange={setChildId}>
-              <SelectTrigger id="goal-child">
+            <Label htmlFor={fieldId("child")}>Hijo o hija</Label>
+            <Select value={childId} onValueChange={setChildId} disabled={isEdit}>
+              <SelectTrigger id={fieldId("child")}>
                 <SelectValue placeholder="Elegí" />
               </SelectTrigger>
               <SelectContent>
@@ -76,9 +97,9 @@ function GoalForm({ onDone }: { onDone: () => void }) {
             </Select>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-title">¿Para qué ahorra?</Label>
+            <Label htmlFor={fieldId("title")}>¿Para qué ahorra?</Label>
             <Input
-              id="goal-title"
+              id={fieldId("title")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={GOAL_LIMITS.title}
@@ -87,9 +108,9 @@ function GoalForm({ onDone }: { onDone: () => void }) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-target">LoriCoins a ahorrar</Label>
+            <Label htmlFor={fieldId("target")}>LoriCoins a ahorrar</Label>
             <Input
-              id="goal-target"
+              id={fieldId("target")}
               type="number"
               inputMode="numeric"
               min={GOAL_LIMITS.minTarget}
@@ -100,13 +121,13 @@ function GoalForm({ onDone }: { onDone: () => void }) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-months">Plazo</Label>
+            <Label htmlFor={fieldId("months")}>Plazo</Label>
             <Select value={months} onValueChange={setMonths}>
-              <SelectTrigger id="goal-months">
+              <SelectTrigger id={fieldId("months")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {[1, 2, 3, 6, 9, 12].map((m) => (
+                {monthOptions.map((m) => (
                   <SelectItem key={m} value={String(m)}>
                     {m} {m === 1 ? "mes" : "meses"}
                   </SelectItem>
@@ -115,9 +136,9 @@ function GoalForm({ onDone }: { onDone: () => void }) {
             </Select>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-bonus">Premio extra si la cumple</Label>
+            <Label htmlFor={fieldId("bonus")}>Premio extra si la cumple</Label>
             <Input
-              id="goal-bonus"
+              id={fieldId("bonus")}
               type="number"
               inputMode="numeric"
               min={GOAL_LIMITS.minBonus}
@@ -136,7 +157,7 @@ function GoalForm({ onDone }: { onDone: () => void }) {
             </Button>
             <Button type="submit" disabled={saving || !childId} className="bg-emerald-600 text-white hover:bg-emerald-700">
               {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-              Crear meta
+              {isEdit ? "Guardar cambios" : "Crear meta"}
             </Button>
           </div>
           {error && (
@@ -153,6 +174,7 @@ function GoalForm({ onDone }: { onDone: () => void }) {
 function GoalCard({ goal, balance, childName, canCancel }: { goal: SavingsGoal; balance: number; childName?: string; canCancel: boolean }) {
   const { refresh } = useApp()
   const [busy, setBusy] = useState(false)
+  const [editing, setEditing] = useState(false)
   const saved = goal.status === "cumplida" ? goal.target : Math.max(0, balance - goal.start_balance)
   const percent = goalProgress(saved, goal.target)
   const status = STATUS_LABEL[goal.status]
@@ -162,6 +184,16 @@ function GoalCard({ goal, balance, childName, canCancel }: { goal: SavingsGoal; 
     await fetch(`/api/goals/${goal.id}`, { method: "DELETE" })
     await refresh()
     setBusy(false)
+  }
+
+  if (editing) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <GoalForm goal={goal} onDone={() => setEditing(false)} />
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -191,10 +223,16 @@ function GoalCard({ goal, balance, childName, canCancel }: { goal: SavingsGoal; 
           </span>
         </div>
         {canCancel && goal.status === "activa" && (
-          <Button variant="ghost" size="sm" className="self-end text-red-700 hover:text-red-800" onClick={cancel} disabled={busy}>
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Cancelar meta
-          </Button>
+          <div className="flex justify-end gap-1">
+            <Button variant="ghost" size="sm" className="text-teal-700 hover:text-teal-800" onClick={() => setEditing(true)} disabled={busy}>
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+              Editar
+            </Button>
+            <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-800" onClick={cancel} disabled={busy}>
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Cancelar meta
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>
