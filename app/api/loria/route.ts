@@ -2,6 +2,7 @@ import { stepCountIs, streamText, tool } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 import { getSessionUserId } from '@/lib/server/http'
+import { saveLoriaMessage } from '@/lib/server/loria-history'
 
 // Initialize Groq client (FREE!)
 const groq = createGroq({
@@ -73,14 +74,18 @@ Pasos: elegir producto, calcular costo, poner precio, vender, reinvertir
 - Lecciones: +30 LC
 - Meta cumplida: +100 LC
 
-FORMATO:
-- Respuestas estructuradas con listas
-- Ejemplos concretos con numeros
-- Termina con pregunta para continuar
-- Maximo 200 palabras por respuesta`
+FORMATO (MUY IMPORTANTE):
+- Escribe como una persona cercana que conversa, no como un manual.
+- Usa parrafos cortos. Usa listas simples con "-" solo cuando ayuden de verdad.
+- NO uses titulos con "#", tablas ni separadores "---".
+- Usa **negrita** con moderacion, solo para 2 o 3 palabras clave por respuesta.
+- Ejemplos concretos con numeros.
+- Termina con una pregunta corta para seguir la charla.
+- Maximo 150 palabras por respuesta.`
 
 export async function POST(req: Request) {
-  if (!(await getSessionUserId())) {
+  const userId = await getSessionUserId()
+  if (!userId) {
     return Response.json({ error: 'Tenés que iniciar sesión' }, { status: 401 })
   }
 
@@ -97,7 +102,15 @@ export async function POST(req: Request) {
 
     const messages = rawMessages.slice(-20)
 
+    const lastUser = messages[messages.length - 1]
+    if (lastUser?.role === 'user' && typeof lastUser.content === 'string') {
+      await saveLoriaMessage(userId, 'user', lastUser.content)
+    }
+
     const result = streamText({
+      onFinish: async ({ text }) => {
+        await saveLoriaMessage(userId, 'assistant', text)
+      },
       // Groq retired llama-3.3-70b-versatile for this key; GROQ_MODEL lets us swap without a deploy.
       model: groq(process.env.GROQ_MODEL || 'openai/gpt-oss-120b'),
       system: LORIA_SYSTEM_PROMPT,
