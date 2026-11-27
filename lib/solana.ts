@@ -19,7 +19,7 @@ import {
 } from "@solana/spl-token"
 import bs58 from "bs58"
 import { PaymentPendingError, SolanaConfigError, SolanaTxError } from "@/lib/server/payment-errors"
-import { MAX_REWARD, MIN_REWARD } from "@/lib/loricoin/rules"
+import { MAX_REDEEM_PRICE, MAX_REWARD, MIN_REWARD } from "@/lib/loricoin/rules"
 
 export const LORICOIN_DECIMALS = 0
 export const HEALTHY_AUTHORITY_SOL = 0.05
@@ -83,6 +83,12 @@ async function getTokenProgram(): Promise<PublicKey> {
 export function validateMintAmount(amount: unknown): asserts amount is number {
   if (typeof amount !== "number" || !Number.isInteger(amount) || amount < MIN_REWARD || amount > MAX_REWARD) {
     throw new RangeError(`La cantidad tiene que ser un entero entre ${MIN_REWARD} y ${MAX_REWARD}`)
+  }
+}
+
+function validateBurnAmount(amount: unknown): asserts amount is number {
+  if (typeof amount !== "number" || !Number.isInteger(amount) || amount < 1 || amount > MAX_REDEEM_PRICE) {
+    throw new RangeError(`La cantidad a canjear tiene que ser un entero entre 1 y ${MAX_REDEEM_PRICE}`)
   }
 }
 
@@ -212,7 +218,7 @@ export async function mintLoricoins(
 
 /** Quema LoriCoins de la wallet del hijo (descuentos). La autoridad paga la comisión. */
 export async function burnLoricoins(childSecretKey: Uint8Array, amount: number): Promise<string> {
-  validateMintAmount(amount)
+  validateBurnAmount(amount)
   const child = keypairFromSecret(childSecretKey)
   const payer = getAuthority()
   const mint = getMintAddress()
