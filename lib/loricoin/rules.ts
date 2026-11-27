@@ -6,6 +6,8 @@ export const PIN_PATTERN = /^\d{6}$/
 export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export const MIN_REWARD = 1
 export const MAX_REWARD = 50
+/** Tope de un canje en la tienda; es independiente del tope de pago por tarea. */
+export const MAX_REDEEM_PRICE = 100_000
 export const MAX_ACTIVE_TASKS_PER_CHILD = 20
 export const ACTIVE_TASK_STATUSES: TaskStatus[] = ["pendiente", "terminada", "pagando"]
 export const DAILY_FAMILY_MINT_LIMIT = 200
